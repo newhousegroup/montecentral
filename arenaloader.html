@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newhouse Arena</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0d0d0f;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg);
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* LOADER RING */
+    .loader {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg,
+          rgba(255, 255, 255, 0),
+          rgba(255, 255, 255, 0.25),
+          rgba(255, 255, 255, 0.8));
+      mask: radial-gradient(circle, transparent 55%, black 56%);
+      animation: spin 1.1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Connecting...</h1><br>
+  <div class="loader"></div>
+
+</body>
+
+<script>
+  setTimeout(() => {
+    window.location.href = "./arena.html";
+  }, 2000000);
+</script>
+
+</html>
