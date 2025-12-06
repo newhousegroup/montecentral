@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monte Central • Newhouse</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --card: #151518;
+    --text: #e6e6e6;
+    --sub: #9a9a9a;
+    --accent: #4b8bff;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 80px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* TOP GLOW SWITCH (1 second hard switch) */
+  #topGlow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 260px;
+    pointer-events: none;
+    background: radial-gradient(circle at top, rgba(255,255,255,0.45), transparent 75%);
+    filter: blur(40px);
+    mix-blend-mode: screen;
+    z-index: -1;
+  }
+
+  /* LASER CONTAINERS */
+  .laserContainer {
+    position: fixed;
+    bottom: 0;
+    width: 50%;
+    height: 100vh;
+    pointer-events: none;
+    overflow: visible;
+    z-index: -1;
+  }
+
+  #lasersLeft { left: 0; }
+  #lasersRight { right: 0; transform: scaleX(-1); }
+
+  /* LASER STYLE */
+  .laser {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 12px;
+    height: 80vw;
+    background: linear-gradient(to top, rgba(255,255,255,0.9), rgba(255,255,255,0));
+    opacity: 0.35;
+    transform-origin: bottom left;
+    animation: pulse 2.5s infinite ease-in-out, wiggle 5s infinite ease-in-out;
+    filter: blur(1px);
+  }
+
+  /* ANGLES */
+  .a15 { transform: rotate(15deg); }
+  .a30 { transform: rotate(30deg); }
+  .a45 { transform: rotate(45deg); }
+  .a60 { transform: rotate(60deg); }
+  .a75 { transform: rotate(75deg); }
+  .a90 { transform: rotate(90deg); }
+
+  /* Pulse animation */
+  @keyframes pulse {
+    0% { opacity: 0.1; }
+    50% { opacity: 0.45; }
+    100% { opacity: 0.1; }
+  }
+
+  /* Wiggle animation */
+  @keyframes wiggle {
+    0% { transform: rotate(var(--angle)); }
+    50% { transform: rotate(calc(var(--angle) + 5deg)); }
+    100% { transform: rotate(var(--angle)); }
+  }
+
+  /* MAIN CONTENT */
+  .container {
+    width: 88%;
+    max-width: 1050px;
+    margin: auto;
+    padding-top: 130px;
+  }
+
+  h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--sub);
+    font-size: 1.1rem;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .section-title {
+    margin-top: 70px;
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    font-weight: 600;
+  }
+
+  .grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 700px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 1000px) {
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .card {
+    background: var(--card);
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: 0.25s;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.6s forwards;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.05rem;
+  }
+
+  footer {
+    text-align: left;
+    color: #777;
+    font-size: 0.85rem;
+    margin-top: 90px;
+    padding-bottom: 40px;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="topGlow"></div>
+
+<!-- LASERS -->
+<div id="lasersLeft" class="laserContainer"></div>
+<div id="lasersRight" class="laserContainer"></div>
+
+<div class="container">
+
+  <h1>Monte Central</h1>
+  <p class="subtitle">A Newhouse experiment. No explanations.</p>
+
+  <div class="section-title">Programs</div>
+
+  <div class="grid">
+    <div class="card"><a href="https://montecentral.github.io/tetris/index.html">Ampion Tetris</a></div>
+    <div class="card"><a href="https://montecentral.github.io/hax-song/haxsong.html">Hax Song</a></div>
+    <div class="card"><a href="https://montecentral.github.io/monte-canva/draw.html">Monte Canva</a></div>
+
+    <div class="card"><a href="https://montecentral.github.io/monte-camera/camera.html">Camera</a></div>
+    <div class="card"><a href="https://montecentral.github.io/monte-selfie/selfie.html">Selfie</a></div>
+    <div class="card"><a href="https://montecentral.github.io/monte-randombutton/random.html">Random Button</a></div>
+
+    <div class="card"><a href="https://montecentral.github.io/guess-number/index.html">Guess</a></div>
+    <div class="card"><a href="https://montecentral.github.io/hit-the-red/hit.html">Hit</a></div>
+    <div class="card"><a href="https://montecentral.github.io/hit-the-redv2/index.html">Hit II</a></div>
+  </div>
+
+  <footer>
+    Monte Central • Newhouse  
+    <br>Rebuilt 2026
+  </footer>
+
+</div>
+
+<script>
+/* TOP COLOR SWITCH EVERY 1 SECOND */
+function randomGlow() {
+  const glow = document.getElementById("topGlow");
+  const r = Math.floor(Math.random() * 180) + 40;
+  const g = Math.floor(Math.random() * 180) + 40;
+  const b = Math.floor(Math.random() * 180) + 40;
+  glow.style.background = `radial-gradient(circle at top, rgba(${r},${g},${b},0.45), transparent 75%)`;
+}
+setInterval(randomGlow, 500);
+randomGlow();
+
+
+/* LASER GENERATION */
+const angles = [15, 30, 45, 60, 75, 90];
+
+function createLasers(container) {
+  angles.forEach(angle => {
+    const el = document.createElement("div");
+    el.className = "laser";
+    el.style.setProperty("--angle", angle + "deg");
+    el.classList.add("a" + angle);
+    el.style.animationDelay = Math.random() * 2 + "s";
+    container.appendChild(el);
+  });
+}
+
+createLasers(document.getElementById("lasersLeft"));
+createLasers(document.getElementById("lasersRight"));
+</script>
+
+</body>
+</html>
