@@ -3,9 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monte Central • Newhouse</title>
+<title>Monte Central</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+if (location.pathname.endsWith('/')) {
+  location.href = location.pathname.slice(0, -1);
+}
+</script>
 
 <style>
   :root {
@@ -65,7 +71,7 @@
     bottom: 0;
     left: 0;
     width: 12px;
-    height: 80vw;
+    height: max(80vw,60vh);
     background: linear-gradient(to top, rgba(255,255,255,0.9), rgba(255,255,255,0));
     opacity: 0.35;
     transform-origin: bottom left;
@@ -184,27 +190,42 @@
 <div class="container">
 
   <h1>Monte Central</h1>
-  <p class="subtitle">A Newhouse experiment. No explanations.</p>
+  <p class="subtitle">The new vision by Newhouse</p>
 
-  <div class="section-title">Programs</div>
+<div class="section-title">Programs</div>
 
-  <div class="grid">
-    <div class="card"><a href="https://montecentral.github.io/tetris/index.html">Ampion Tetris</a></div>
-    <div class="card"><a href="https://montecentral.github.io/hax-song/haxsong.html">Hax Song</a></div>
-    <div class="card"><a href="https://montecentral.github.io/monte-canva/draw.html">Monte Canva</a></div>
+<div class="grid">
 
-    <div class="card"><a href="https://montecentral.github.io/monte-camera/camera.html">Camera</a></div>
-    <div class="card"><a href="https://montecentral.github.io/monte-selfie/selfie.html">Selfie</a></div>
-    <div class="card"><a href="https://montecentral.github.io/monte-randombutton/random.html">Random Button</a></div>
+  <div class="card"><a href="./ampiongamestetris">Ampion Game</a></div>
 
-    <div class="card"><a href="https://montecentral.github.io/guess-number/index.html">Guess</a></div>
-    <div class="card"><a href="https://montecentral.github.io/hit-the-red/hit.html">Hit</a></div>
-    <div class="card"><a href="https://montecentral.github.io/hit-the-redv2/index.html">Hit II</a></div>
-  </div>
+  <div class="card"><a href="./montecamera">Camera</a></div>
+
+  <div class="card"><a href="./monteclickitgame">Click It</a></div>
+
+  <div class="card"><a href="./montecanva2">Draw</a></div> 
+
+  <div class="card"><a href="./guessnumber">Guess</a></div>
+
+  <div class="card"><a href="./Haxsong.mp3" target="_blank">Haxsong</a></div>
+
+  <div class="card"><a href="./hitthered/hitthered">Hit The Red</a></div>
+
+  <div class="card"><a href="./htmltesting">HTML Tester</a></div>
+
+  <div class="card"><a href="./monteipaddress">IP Checker</a></div>
+
+  <div class="card"><a href="./randombuttons">Random Button</a></div>
+
+  <div class="card"><a href="./rockpaperscissor">Rock Paper Scissors</a></div>
+
+  <div class="card"><a href="./montecameraselfie">Selfie</a></div>
+
+  <div class="card"><a href="./montevibing/montevibing">Vibing</a></div>
+
+</div>
 
   <footer>
-    Monte Central • Newhouse  
-    <br>Rebuilt 2026
+    Monte Central • Newhouse
   </footer>
 
 </div>
