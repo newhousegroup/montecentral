@@ -510,14 +510,13 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
     async function hostShowVideo() {
       await setDoc(videoDoc, {
         show: true,
-        startTimestamp: serverTimestamp()
       });
     }
 
     async function hostStopVideo() {
       await setDoc(videoDoc, {
         show: false
-      }, { merge: true });
+      });
     }
 
     /* Rename */
@@ -1133,29 +1132,28 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
       const d = snap.data();
       if (!d) return;
 
-      if (d.show === true) {
+      const show = d.show === true;
+      const vid = document.getElementById("arenaVideo");
 
-        // Hide both stage modes
-        markdownEl.classList.add("hidden");
-        titleEl.style.display = "none";
+      if (show) {
+        // Hide normal stage
+        document.getElementById("markdownDisplay").classList.add("hidden");
+        document.getElementById("titleModeBlock").style.display = "none";
 
-        // Sync time
-        const serverTime = d.startTimestamp?.toMillis() ?? 0;
-        const now = Date.now();
-        const elapsed = (now - serverTime) / 1000;
+        // Show & play the video
+        vid.style.display = "block";
+        vid.muted = false;
+        vid.playsInline = true;
+        vid.currentTime = 0;
 
-        videoEl.currentTime = Math.max(0, elapsed);
-        videoEl.style.display = "block";
-        videoEl.play();
-      }
-      else {
-        // Stop and hide video
-        videoEl.pause();
-        videoEl.currentTime = 0;
-        videoEl.style.display = "none";
-
-        // Restore stage mode
-        onStageModeRestore();
+        vid.play().catch(err => {
+          console.warn("Autoplay blocked:", err);
+        });
+      } else {
+        // Hide video, return to stage
+        vid.pause();
+        vid.style.display = "none";
+        document.getElementById("markdownDisplay").classList.remove("hidden");
       }
     });
 
