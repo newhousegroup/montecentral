@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>404 • Monte Central</title>
+<title>404</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -133,7 +133,7 @@
 
 <body>
 
-<div id="topGlow"></div>
+<div id="topGlow-Disabled"></div>
 
 <div id="lasersLeft" class="laserContainer"></div>
 <div id="lasersRight" class="laserContainer"></div>
@@ -145,7 +145,7 @@
 </div>
 
 <script>
-/* RANDOM TOP COLOR SWITCH */
+/* RANDOM TOP COLOR SWITCH 
 function randomGlow() {
   const glow = document.getElementById("topGlow");
   const r = Math.floor(Math.random() * 180) + 40;
@@ -153,7 +153,7 @@ function randomGlow() {
   const b = Math.floor(Math.random() * 180) + 40;
   glow.style.background = `radial-gradient(circle at top, rgba(${r},${g},${b},0.45), transparent 75%)`;
 }
-setInterval(randomGlow, 700);
+setInterval(randomGlow, 700);*/
 
 /* CREATE LASERS */
 const angles = [15, 30, 45, 60, 75, 90];
