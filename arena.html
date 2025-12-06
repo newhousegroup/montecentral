@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newhouse Arena</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* =========================================================
+   ROOT + GLOBAL
+========================================================= */
+    :root {
+      --bg: #0d0d0f;
+      --text: #e6e6e6;
+      --sub: #9a9a9a;
+      --accent: #4b8bff;
+
+      --stage-padding: 32px;
+      --bar-height: 16px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      padding: 40px 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* =========================================================
+   ARENA LAYOUT
+========================================================= */
+    .arena {
+      width: 900px;
+      max-width: 92%;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    /* =========================================================
+   STAGE SCREEN (Markdown Area)
+========================================================= */
+    .stage-screen {
+      width: 100%;
+      min-height: 180px;
+      background: #151518;
+      border-radius: 16px;
+      border: 1px solid #333;
+      padding: var(--stage-padding);
+      font-size: 1.05rem;
+      line-height: 1.55;
+      display: block;
+      white-space: pre-wrap;
+    }
+
+    /* Hides when in title mode */
+    #markdownDisplay.hidden {
+      display: none;
+    }
+
+    #markdownDisplay {
+      padding-top: 40px;
+      line-height: 120%;
+    }
+
+    #markdownDisplay p {
+      line-height: 150%;
+    }
+
+    /* =========================================================
+   TITLE MODE BLOCK
+========================================================= */
+    #titleModeBlock {
+      width: 100%;
+      background: #151518;
+      border-radius: 16px;
+      border: 1px solid #333;
+      padding: var(--stage-padding);
+      display: none;
+      flex-direction: column;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    #title-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font-size: 2.8rem;
+      font-weight: 400;
+      margin-bottom: 12px;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    #subtitle {
+      color: #cfcfcf;
+      font-size: 1.15rem;
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    /* Gradient bar under title */
+    #title-bar {
+      width: calc(100% - var(--stage-padding)*2);
+      height: var(--bar-height);
+      margin-top: 4px;
+      margin-bottom: 18px;
+      background: linear-gradient(to right, #0468fe, #0468fe00);
+    }
+
+    /* =========================================================
+   HOST SEAT
+========================================================= */
+    .host-seat {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #1c1c20;
+      border: 1px solid #444;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: -10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    /* =========================================================
+   SEATS GRID
+========================================================= */
+    .seat-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 26px;
+    }
+
+    .seat {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #151518;
+      border: 1px solid #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: 0.2s;
+    }
+
+    .seat:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    /* =========================================================
+   HOST MENU PANEL
+========================================================= */
+    .menu-panel {
+      width: 900px;
+      max-width: 92%;
+      margin: auto;
+      background: #111115;
+      border: 1px solid #333;
+      padding: 20px;
+      border-radius: 14px;
+    }
+
+    .menu-title {
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    textarea#markdownInput {
+      width: 100%;
+      height: 120px;
+      background: #0e0e11;
+      border: 1px solid #333;
+      color: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 6px;
+      font-family: Inter, sans-serif;
+      font-size: 0.95rem;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #2f6de2;
+    }
+
+    /* Vibe toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    /* Laser color picker */
+    #laserColor {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    /* =========================================================
+   RAVE MODE (Glow + Lasers)
+========================================================= */
+    #topGlow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 260px;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      filter: blur(40px);
+      z-index: -1;
+      display: none;
+    }
+
+    .laserContainer {
+      position: fixed;
+      bottom: 0;
+      width: 50%;
+      height: 100vh;
+      pointer-events: none;
+      z-index: -1;
+      display: none;
+    }
+
+    #lasersLeft {
+      left: 0;
+    }
+
+    #lasersRight {
+      right: 0;
+      transform: scaleX(-1);
+    }
+
+    .laser {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 12px;
+      height: max(80vw, 60vh);
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+      opacity: 0.35;
+      transform-origin: bottom left;
+      filter: blur(1px);
+      animation: pulse 2.5s infinite ease-in-out, rotateLaser 9s infinite linear;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.1;
+      }
+
+      50% {
+        opacity: 0.45;
+      }
+
+      100% {
+        opacity: 0.1;
+      }
+    }
+
+    @keyframes rotateLaser {
+      0% {
+        transform: rotate(var(--angle));
+      }
+
+      50% {
+        transform: rotate(calc(var(--angle) + 8deg));
+      }
+
+      100% {
+        transform: rotate(var(--angle));
+      }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+
+  <!-- RAVE ELEMENTS -->
+  <div id="topGlow"></div>
+  <div id="lasersLeft" class="laserContainer"></div>
+  <div id="lasersRight" class="laserContainer"></div>
+
+  <!-- ARENA -->
+  <div class="arena">
+
+    <!-- MARKDOWN MODE SCREEN -->
+    <div id="markdownDisplay" class="stage-screen">
+      <marquee>Welcome to Newhouse Arena.</marquee>
+    </div>
+
+    <!-- TITLE MODE SCREEN -->
+    <div id="titleModeBlock">
+      <div id="title-input">Welcome</div>
+      <div id="title-bar"></div>
+      <div id="subtitle">Newhouse Arena</div>
+    </div>
+
+    <video id="arenaVideo" src="https://newhs.cc/montecentral/arenaintro.mp4" preload="auto"
+      style="display:none; width:100%; border-radius:0;">
+    </video>
+
+    <div class="host-seat" id="host-seat">HOST</div>
+
+    <div class="seat-grid">
+      <!-- 12 seats -->
+      <script>
+        document.write(
+          new Array(13).fill(0).map((_, i) =>
+            i > 0 ? `<div class='seat' id="seat-${i}" data-seat="${i}">${i}</div>` : ""
+          ).join("")
+        );
+      </script>
+    </div>
+
+  </div>
+  <br>
+  <!-- CHAT PANEL -->
+  <div id="chatPanel" style="
+  width:900px; max-width:92%; margin:20px auto;
+  background:#111115; border:1px solid #333;
+  padding:16px; border-radius:14px;
+">
+
+    <div style="font-weight:600; margin-bottom:10px;">Chat</div>
+
+    <div id="chatBox" style="
+    height:180px; overflow-y:auto;
+    background:#0e0e11; border:1px solid #333;
+    padding:10px; border-radius:8px; margin-bottom:10px;
+    font-size:0.9rem; line-height:1.45;
+  ">
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <input id="chatInput" type="text" placeholder="Type a message..." style="flex:1; padding:10px; border-radius:8px;
+      border:1px solid #333; background:#0e0e11; color:white;">
+      <button id="chatSendBtn" style="padding:10px 16px;">Send</button>
+    </div>
+
+  </div>
+
+  <!-- HOST MENU -->
+  <div class="menu-panel hidden" id="hostMenu">
+    <div class="menu-title">Host Controls</div>
+
+    <!-- Mode toggle -->
+    <button id="toggleTitleMode" onclick="toggleTitle()">Toggle Title Mode</button>
+
+    <!-- Markdown Editor -->
+    <textarea id="markdownInput" placeholder="Write markdown here..."></textarea>
+    <button onclick="applyMarkdown()">Apply</button><br>
+
+    <button onclick="hostShowVideo()">Show Video</button>
+    <button onclick="hostStopVideo()">Stop Video</button>
+
+    <div class="toggle-row">
+      <label><b>Mute Chat</b></label>
+      <input type="checkbox" id="muteToggle">
+    </div>
+
+    <!-- Vibe -->
+    <div class="toggle-row">
+      <label>Vibe Mode</label>
+      <input type="checkbox" id="vibeToggle">
+    </div>
+
+    <!-- Laser Color 
+    <div class="toggle-row">
+      <label>Laser Color</label>
+      <input id="laserColor" type="color" value="#ffffff">
+    </div>-->
+
+    <div class="toggle-row">
+      <label>Left Laser Color</label>
+      <input id="laserColorLeft" type="color" value="#ffffff">
+    </div>
+
+    <div class="toggle-row">
+      <label>Right Laser Color</label>
+      <input id="laserColorRight" type="color" value="#ffffff">
+    </div>
+  </div>
+
+  <div id="renamePopup" class="menu-panel hidden" style="position:fixed; left:50%; top:50%;
+transform:translate(-50%, -50%); z-index:999; width:320px;">
+    <div class="menu-title">Change your name</div>
+    <p style="font-size:10px">Names cannot be more than 6 characters long<br><br></p>
+
+    <input id="renameInput" type="text" placeholder="Enter new name…" style="
+    width:100%; padding:10px; border-radius:8px; border:1px solid #333;
+    background:#0e0e11; color:white; margin-bottom:10px;
+  " maxlength="6">
+
+    <button onclick="confirmRename()">Confirm</button>
+    <button onclick="closeRenamePopup()" style="background:#333; margin-left:8px;">Cancel</button>
+  </div>
+
+  <!-- Firebase and Cloud Sync -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot,
+      collection, addDoc, serverTimestamp, getDocs,
+      query, orderBy, deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxnrt_Bj5jc17VPUgtf36kFwGImhwbEeQ",
+      authDomain: "newhouse-arena.firebaseapp.com",
+      projectId: "newhouse-arena",
+      storageBucket: "newhouse-arena.firebasestorage.app",
+      messagingSenderId: "94826900380",
+      appId: "1:94826900380:web:84efe9b5d9ae857efd3659"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    /* Host configs */
+
+    const settingsDoc = doc(db, "arena", "settings");
+    let hostPassword = null;
+
+    // Load host password from Firestore
+    onSnapshot(settingsDoc, snap => {
+      const d = snap.data();
+      if (d && d.key) {
+        hostPassword = d.key;
+        console.log("Host password loaded.");
+      }
+    });
+
+    async function freeExistingHost() {
+      const snap = await getDocs(usersRef);
+
+      for (const u of snap.docs) {
+        const data = u.data();
+        if (data.name?.toLowerCase() === "host" && u.id !== currentUID) {
+          // Move old host to a free regular seat
+          const newSeat = await findSeat();
+          await updateDoc(doc(db, "users", u.id), {
+            seat: newSeat,
+            name: "nh" + Math.floor(Math.random() * 90 + 10) // fallback rename
+          });
+        }
+      }
+    }
+
+    /* Host control */
+
+    const stageScreen = document.querySelector(".stage-screen");
+    const titleScreen = document.getElementById("titleModeBlock");
+    stageScreen.addEventListener("click", () => {
+      if (currentName === "host") {
+        hostMenu.classList.toggle("hidden");
+      }
+    });
+    titleScreen.addEventListener("click", () => {
+      if (currentName === "host") {
+        hostMenu.classList.toggle("hidden");
+      }
+    });
+
+    const videoDoc = doc(db, "arena", "video");
+
+    async function hostShowVideo() {
+      await setDoc(videoDoc, {
+        show: true,
+        startTimestamp: serverTimestamp()
+      });
+    }
+
+    async function hostStopVideo() {
+      await setDoc(videoDoc, {
+        show: false
+      }, { merge: true });
+    }
+
+    /* Rename */
+
+    // Listen for seat clicks to trigger rename popup
+    document.querySelectorAll('.seat').forEach(seatEl => {
+      seatEl.addEventListener('click', () => {
+        const seatNumber = parseInt(seatEl.dataset.seat);
+
+        // Only allow renaming if THIS USER owns the seat
+        if (seatNumber === currentSeat) {
+          openRenamePopup();
+        }
+      });
+    });
+
+    window.openRenamePopup = function () {
+      document.getElementById("renamePopup").classList.remove("hidden");
+      document.getElementById("renameInput").value = currentName;
+    }
+
+    window.closeRenamePopup = function () {
+      document.getElementById("renamePopup").classList.add("hidden");
+    }
+
+    async function isNameTaken(name) {
+      const snap = await getDocs(usersRef);
+      let taken = false;
+
+      snap.forEach(u => {
+        const data = u.data();
+        if (u.id !== currentUID && data.name?.toLowerCase() === name.toLowerCase()) {
+          taken = true;
+        }
+      });
+
+      return taken;
+    }
+
+    window.confirmRename = async function () {
+      const newName = document.getElementById("renameInput").value.trim();
+      if (!newName) return;
+
+      /* --- Duplicate name check --- */
+      if (await isNameTaken(newName)) {
+        alert("Someone in the room already uses that name.");
+        return;
+      }
+
+      /* --- HOST RESERVED NAME --- */
+      if (newName.toLowerCase() === "host") {
+
+        if (!hostPassword) {
+          alert("Host password not loaded yet.");
+          return;
+        }
+
+        const pw = prompt("Enter host password:");
+        if (!pw) return;
+
+        if (pw !== hostPassword) {
+          alert("Incorrect password.");
+          return;
+        }
+
+        /* You are becoming HOST */
+        await freeExistingHost();         // kick existing host from seat 0
+
+        await updateDoc(doc(db, "users", currentUID), {
+          name: "host",
+          seat: 0                          // move to host seat
+        });
+
+        currentSeat = 0;
+        currentName = "host";
+        closeRenamePopup();
+        return;
+      }
+
+      /* ---- Normal rename ---- */
+      await updateDoc(doc(db, "users", currentUID), {
+        name: newName
+      });
+
+      currentName = newName;
+      closeRenamePopup();
+    };
+
+    /* ============================
+   FIREBASE USER SESSION
+============================ */
+
+    // Firestore references
+    const usersRef = collection(db, "users");
+    let currentUID = null;
+    let currentSeat = null;
+    let currentName = null;
+
+    /* ---- Generate a random Jamal-name ---- */
+    function generateRandomName() {
+      const num = Math.floor(Math.random() * 90 + 10); // 10–99
+      return "nh" + num;
+    }
+
+    /* ---- Pick a seat 1–12 ---- */
+    async function findSeat() {
+      const snap = await getDocs(usersRef);
+      const taken = new Set();
+
+      snap.forEach(doc => {
+        const s = doc.data().seat;
+        if (s) taken.add(s);
+      });
+
+      for (let i = 1; i <= 12; i++) {
+        if (!taken.has(i)) return i;
+      }
+      return null; // auditorium full
+    }
+
+    /* ---- Join system (runs on page load) ---- */
+    async function joinArena() {
+      currentSeat = await findSeat();
+      if (!currentSeat) {
+        alert("Arena is full.");
+        return;
+      }
+
+      currentName = generateRandomName();
+
+      const userDoc = await addDoc(usersRef, {
+        name: currentName,
+        seat: currentSeat,
+        lastActive: serverTimestamp(),
+        joined: serverTimestamp()
+      });
+
+      currentUID = userDoc.id;
+
+      console.log("Joined as", currentName, "Seat:", currentSeat);
+    }
+
+    setInterval(() => {
+      if (!currentUID) return;
+      updateDoc(doc(db, "users", currentUID), {
+        lastActive: serverTimestamp()
+      });
+    }, 5000); // every 5 sec
+
+    async function cleanupInactiveUsers() {
+      const snap = await getDocs(usersRef);
+      const now = Date.now();
+
+      snap.forEach(u => {
+        const data = u.data();
+        const last = data.lastActive?.toMillis() ?? 0;
+
+        if (now - last > 30000 && u.id != currentUID) { // inactive > 30 sec
+          deleteDoc(doc(db, "users", u.id));
+        }
+      });
+    }
+
+    cleanupInactiveUsers();
+    setInterval(cleanupInactiveUsers, 20000);
+
+    /* ---- Allow username change anytime ---- */
+    async function updateUsername(newName) {
+      if (!currentUID) return;
+
+      await updateDoc(doc(db, "users", currentUID), {
+        name: newName
+      });
+
+      currentName = newName;
+      console.log("Name changed to", newName);
+    }
+
+    /* ============================
+   LIVE SEAT RENDERING
+============================ */
+
+    onSnapshot(usersRef, snapshot => {
+      // First, clear all seat labels
+      for (let i = 1; i <= 12; i++) {
+        document.getElementById("seat-" + i).textContent = i;
+      }
+
+      // Render active users
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const seat = data.seat;
+        const name = data.name;
+
+        if (seat === 0 && doc.id === currentUID) {
+          document.getElementById("host-seat").innerHTML = `<b style="color:gold">HOST</b>`;
+        }
+
+        if (seat >= 1 && seat <= 12) {
+          const seatEl = document.getElementById("seat-" + seat);
+
+          if (doc.id === currentUID) {
+            seatEl.innerHTML = `<b>${name}</b>`;
+          } else {
+            seatEl.textContent = name;
+          }
+        }
+      });
+    });
+
+    /* ============================
+       CHAT SYSTEM
+    ============================ */
+
+    const chatRef = collection(db, "chat");
+
+    /* ---- Send message ---- */
+    async function sendMessage(text) {
+      if (!currentName) return;
+
+      // mute check
+      const stageSnap = await getDoc(stageDoc);
+      if (stageSnap.data().muteChat && currentName !== "host") {
+        alert("Chat is muted.");
+        return;
+      }
+
+      // cooldown check
+      if (!canSendNow()) {
+        alert("Slow down…");
+        return;
+      }
+
+      // swear filter
+      text = cleanMessage(text.trim());
+      if (!text) return;
+
+      // push message
+      await addDoc(chatRef, {
+        name: currentName,
+        text: text,
+        time: serverTimestamp()
+      });
+
+      pruneChatHistory(); // limit to 20 messages
+    }
+
+    /* ---- Display chat ---- */
+    onSnapshot(query(chatRef, orderBy("time")), snap => {
+      const chatBox = document.getElementById("chatBox");
+      chatBox.innerHTML = "";
+
+      snap.forEach(doc => {
+        const d = doc.data();
+        const isSelf = d.name === currentName;
+        const isHost = d.name.toLowerCase() === "host";
+
+        chatBox.innerHTML += `
+      <div style="margin-bottom:6px;">
+        <b style="color:${isHost ? 'gold' : (isSelf ? '#4b8bff' : '#fff')}">${isHost ? 'Host' : d.name}</b>
+        <span>: ${d.text}</span>
+      </div>
+    `;
+      });
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    const chatInput = document.getElementById("chatInput");
+    const chatSendBtn = document.getElementById("chatSendBtn");
+
+    chatSendBtn.onclick = () => {
+      const msg = chatInput.value.trim();
+      if (msg.length === 0) return;
+      sendMessage(msg);
+      chatInput.value = "";
+    };
+
+    chatInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        chatSendBtn.onclick();
+      }
+    });
+
+    const muteToggle = document.getElementById("muteToggle");
+
+    muteToggle.onchange = async () => {
+      if (currentName !== "host") return;   // only host can toggle
+      await updateStage({ muteChat: muteToggle.checked });
+    };
+
+    function cleanMessage(str) {
+      const badWords = ["fuck", "shit", "bitch", "asshole", "cunt", "dick", "nig", "nar"];
+      const whitelist = ["assassin", "classic", "education", "nigeria", "night", "nightmare", "narrator", "narrative", "narcissist", "scunthorpe"];
+
+      return str
+        .split(/\s+/)
+        .map(word => {
+          const lower = word.toLowerCase();
+
+          // 1. Whitelist check
+          for (const safe of whitelist) {
+            if (lower.includes(safe)) {
+              return word; // don't censor this word ever
+            }
+          }
+
+          // 2. Bad word check
+          for (const bad of badWords) {
+            if (lower.includes(bad)) {
+              return "*".repeat(word.length);
+            }
+          }
+
+          return word;
+        })
+        .join(" ");
+    }
+
+    let lastMessageTime = 0;
+
+    function canSendNow() {
+      const now = Date.now();
+      if (now - lastMessageTime < 500) return false;
+      lastMessageTime = now;
+      return true;
+    }
+
+    async function pruneChatHistory() {
+      const snap = await getDocs(query(chatRef, orderBy("time")));
+
+      if (snap.size <= 20) return;
+
+      const extra = snap.size - 20;
+      let count = 0;
+
+      snap.forEach(docu => {
+        if (count < extra) {
+          deleteDoc(doc(db, "chat", docu.id));
+          count++;
+        }
+      });
+    }
+
+    pruneChatHistory();
+
+    /* ============================
+       STAGE CONTROL
+    ============================ */
+
+    const stageDoc = doc(db, "arena", "stage");
+
+    async function ensureStageDocument() {
+      const snap = await getDoc(stageDoc);
+
+      if (!snap.exists()) {
+        console.log("Stage document not found — creating...");
+
+        await setDoc(stageDoc, {
+          markdown: "Welcome to Newhouse Arena.",
+          titleMode: false,
+          titleText: "Title Text",
+
+          vibe: false,
+          leftLaser: "#ffffff",
+          rightLaser: "#ffffff",
+
+          hostUID: null,          // nobody is host yet
+          updatedAt: serverTimestamp(),
+          version: 1
+        });
+
+        console.log("Stage document created.");
+      } else {
+        console.log("Stage document already exists.");
+      }
+    }
+
+    // Run at startup
+    ensureStageDocument();
+
+    /* ---- Push new stage content ---- */
+    async function updateStage(data) {
+      await setDoc(stageDoc, data, { merge: true });
+    }
+
+    /* ---- Listen for stage updates ---- */
+    onSnapshot(stageDoc, snap => {
+      const d = snap.data();
+      if (!d) return;
+
+      // Markdown mode
+      if (!d.titleMode) {
+        document.getElementById("markdownDisplay").innerHTML = d.markdown != '' ? marked.parse(d.markdown) : `<marquee>Welcome to Newhouse Arena.</marquee>`;
+        document.getElementById("markdownDisplay").classList.remove("hidden");
+        document.getElementById("titleModeBlock").style.display = "none";
+      }
+
+      // Title Mode
+      else {
+        document.getElementById("titleModeBlock").style.display = "flex";
+        document.getElementById("markdownDisplay").classList.add("hidden");
+
+        document.getElementById("title-input").innerText = d.titleText;
+      }
+
+      if ("muteChat" in d) {
+        muteToggle.checked = d.muteChat;
+
+        const chatInput = document.getElementById("chatInput");
+        const chatSend = document.getElementById("chatSend");
+
+        if (d.muteChat && currentName !== "host") {
+          chatInput.disabled = true;
+          chatInput.placeholder = "Chat is muted by host";
+          chatSend.disabled = true;
+        } else {
+          chatInput.disabled = false;
+          chatInput.placeholder = "Type message…";
+          chatSend.disabled = false;
+        }
+      }
+    });
+
+    /* ============================
+       TITLE MODE TOGGLE
+    ============================ */
+
+    let titleMode = false;
+
+    async function toggleTitle() {
+      titleMode = !titleMode;
+
+      await updateStage({
+        titleMode: titleMode,
+        markdown: document.getElementById("markdownInput").value,
+        titleText: document.getElementById("title-input").innerText
+      });
+    }
+
+    /* ---- Push markdown ---- */
+    async function applyMarkdown() {
+      await updateStage({
+        markdown: document.getElementById("markdownInput").value,
+        titleText: document.getElementById("markdownInput").value
+      });
+    }
+
+    /* ============================
+       VIBE MODE
+============================ */
+
+    const vibeToggle = document.getElementById("vibeToggle");
+
+    // Prevent infinite loop between Firestore → toggleVibe → Firestore
+    let localToggleChange = false;
+
+    vibeToggle.onchange = () => {
+      localToggleChange = true;
+      toggleVibe(vibeToggle.checked);
+    };
+
+    const angles = [15, 30, 45, 60, 75, 90];
+
+    function createLasers(container) {
+      // Prevent duplicate lasers on re-render
+      container.innerHTML = "";
+
+      angles.forEach(angle => {
+        const el = document.createElement("div");
+        el.className = "laser";
+        el.style.setProperty("--angle", angle + "deg");
+        el.style.animationDelay = (Math.random() * 2) + "s";
+        container.appendChild(el);
+      });
+    }
+
+    createLasers(document.getElementById("lasersLeft"));
+    createLasers(document.getElementById("lasersRight"));
+
+    /* ============================
+   LASER COLOR INPUT HANDLERS
+============================ */
+
+    const leftColorInput = document.getElementById("laserColorLeft");
+    const rightColorInput = document.getElementById("laserColorRight");
+
+    /* ⚡ When the LEFT color changes */
+    leftColorInput.oninput = e => {
+      const col = e.target.value;
+
+      // Update locally for instant feedback
+      document.querySelectorAll("#lasersLeft .laser").forEach(l =>
+        l.style.background =
+        `linear-gradient(to top, ${hexToRGBA(col, 0.9)}, ${hexToRGBA(col, 0)})`
+      );
+
+      // Push to Firestore
+      updateLaserColors(col, rightColorInput.value);
+    };
+
+    /* ⚡ When the RIGHT color changes */
+    rightColorInput.oninput = e => {
+      const col = e.target.value;
+
+      // Update locally for instant feedback
+      document.querySelectorAll("#lasersRight .laser").forEach(l =>
+        l.style.background =
+        `linear-gradient(to top, ${hexToRGBA(col, 0.9)}, ${hexToRGBA(col, 0)})`
+      );
+
+      // Push to Firestore
+      updateLaserColors(leftColorInput.value, col);
+    };
+
+    /* --- TOP GLOW ANIMATION --- */
+    setInterval(() => {
+      if (!vibeToggle.checked) return;
+
+      const glow = document.getElementById("topGlow");
+
+      const r = Math.floor(Math.random() * 180) + 40;
+      const g = Math.floor(Math.random() * 180) + 40;
+      const b = Math.floor(Math.random() * 180) + 40;
+
+      glow.style.background =
+        `radial-gradient(circle at top,
+      rgba(${r}, ${g}, ${b}, 0.45),
+      transparent 75%)`;
+    }, 500);
+
+    async function toggleVibe(on) {
+      await updateStage({ vibe: on });
+    }
+
+    /* ---- Color updates ---- */
+    async function updateLaserColors(leftCol, rightCol) {
+      await updateStage({
+        leftLaser: leftCol,
+        rightLaser: rightCol
+      });
+    }
+
+    function hexToRGBA(h, alpha = 1) {
+      let r = parseInt(h.slice(1, 3), 16);
+      let g = parseInt(h.slice(3, 5), 16);
+      let b = parseInt(h.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    /* ---- Live updates from Firestore ---- */
+    onSnapshot(stageDoc, snap => {
+      const d = snap.data();
+      if (!d) return;
+
+      const show = d.vibe === true;
+
+      // If Firestore changed vibe, also update the checkbox (but avoid loop)
+      if (!localToggleChange) {
+        vibeToggle.checked = show;
+      }
+      localToggleChange = false;
+
+      document.getElementById("topGlow").style.display = show ? "block" : "none";
+      document.getElementById("lasersLeft").style.display = show ? "block" : "none";
+      document.getElementById("lasersRight").style.display = show ? "block" : "none";
+
+      /* Laser colors */
+      if (d.leftLaser) {
+        document.querySelectorAll("#lasersLeft .laser").forEach(l =>
+          l.style.background =
+          `linear-gradient(to top, ${hexToRGBA(d.leftLaser, 0.9)}, ${hexToRGBA(d.leftLaser, 0)})`
+        );
+      }
+
+      if (d.rightLaser) {
+        document.querySelectorAll("#lasersRight .laser").forEach(l =>
+          l.style.background =
+          `linear-gradient(to top, ${hexToRGBA(d.rightLaser, 0.9)}, ${hexToRGBA(d.rightLaser, 0)})`
+        );
+      }
+    });
+
+    /* Window */
+    window.applyMarkdown = applyMarkdown;
+    window.toggleTitle = toggleTitle;
+    window.toggleVibe = toggleVibe;
+    window.updateLaserColors = updateLaserColors;
+    window.hostShowVideo = hostShowVideo;
+    window.hostStopVideo = hostStopVideo;
+
+    const videoEl = document.getElementById("arenaVideo");
+    const markdownEl = document.getElementById("markdownDisplay");
+    const titleEl = document.getElementById("titleModeBlock");
+
+    function onStageModeRestore() {
+      getDoc(stageDoc).then(snap => {
+        const d = snap.data();
+        if (!d) return;
+
+        if (d.titleMode) {
+          markdownEl.classList.add("hidden");
+          titleEl.style.display = "flex";
+        } else {
+          markdownEl.classList.remove("hidden");
+          titleEl.style.display = "none";
+        }
+      });
+    }
+
+    onSnapshot(videoDoc, snap => {
+      const d = snap.data();
+      if (!d) return;
+
+      if (d.show === true) {
+
+        // Hide both stage modes
+        markdownEl.classList.add("hidden");
+        titleEl.style.display = "none";
+
+        // Sync time
+        const serverTime = d.startTimestamp?.toMillis() ?? 0;
+        const now = Date.now();
+        const elapsed = (now - serverTime) / 1000;
+
+        videoEl.currentTime = Math.max(0, elapsed);
+        videoEl.style.display = "block";
+        videoEl.play();
+      }
+      else {
+        // Stop and hide video
+        videoEl.pause();
+        videoEl.currentTime = 0;
+        videoEl.style.display = "none";
+
+        // Restore stage mode
+        onStageModeRestore();
+      }
+    });
+
+    joinArena();
+  </script>
+
+</body>
+
+</html>
