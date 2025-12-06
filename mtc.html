@@ -181,7 +181,7 @@ if (location.pathname.endsWith('/')) {
 
 <body>
 
-<div id="topGlow"></div>
+<div id="topGlow-Disabled"></div>
 
 <!-- LASERS -->
 <div id="lasersLeft" class="laserContainer"></div>
@@ -192,9 +192,11 @@ if (location.pathname.endsWith('/')) {
   <h1>Monte Central</h1>
   <p class="subtitle">The new vision by Newhouse</p>
 
-<div class="section-title">Programs</div>
+<div class="section-title"></div>
 
 <div class="grid">
+
+  <div class="card"><a href="./arena" style="color:goldenrod;">Newhouse Arena</a></div>
 
   <div class="card"><a href="./ampiongamestetris">Ampion Game</a></div>
 
@@ -239,9 +241,10 @@ function randomGlow() {
   const b = Math.floor(Math.random() * 180) + 40;
   glow.style.background = `radial-gradient(circle at top, rgba(${r},${g},${b},0.45), transparent 75%)`;
 }
+/*
 setInterval(randomGlow, 500);
 randomGlow();
-
+*/
 
 /* LASER GENERATION */
 const angles = [15, 30, 45, 60, 75, 90];
