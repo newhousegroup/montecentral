@@ -400,7 +400,7 @@
     <button onclick="hostShowVideo()">Show Video</button>
     <button onclick="hostStopVideo()">Stop Video</button>
     -->
-    
+
     <div class="toggle-row">
       <label><b>Mute Chat</b></label>
       <input type="checkbox" id="muteToggle">
@@ -443,6 +443,17 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
     <button onclick="closeRenamePopup()" style="background:#333; margin-left:8px;">Cancel</button>
   </div>
 
+  <div id="movePopup" class="menu-panel hidden" style="
+  position:fixed; left:50%; top:50%;
+  transform:translate(-50%, -50%);
+  z-index:999; width:320px;">
+
+    <div class="menu-title" id="movePopupTitle">Move seat?</div>
+
+    <button id="moveConfirmBtn">Confirm</button>
+    <button onclick="closeMovePopup()" style="background:#333; margin-left:8px;">Cancel</button>
+  </div>
+
   <!-- Firebase and Cloud Sync -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -463,6 +474,8 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    let pendingMoveSeat = null;
 
     /* Host configs */
 
@@ -523,19 +536,63 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
       });
     }
 
-    /* Rename */
+    /* Rename and Reseat */
+
+    document.querySelector('.host-seat').addEventListener('click', () => {
+      if (currentName === "host") {
+        if (confirm("Return to attendee?")) {
+          (async () => {
+            const newSeat = await findSeat();
+            await updateDoc(doc(db, "users", currentUID), {
+              seat: newSeat,
+              name: await specialName()
+            });
+            currentSeat = newSeat;
+          })();
+        }
+      }
+    });
 
     // Listen for seat clicks to trigger rename popup
     document.querySelectorAll('.seat').forEach(seatEl => {
       seatEl.addEventListener('click', () => {
         const seatNumber = parseInt(seatEl.dataset.seat);
 
-        // Only allow renaming if THIS USER owns the seat
+        // If clicking own seat → rename
         if (seatNumber === currentSeat) {
           openRenamePopup();
+          return;
+        }
+
+        // If someone is sitting there → cannot move
+        const nameOnSeat = seatEl.textContent.trim();
+        if (nameOnSeat !== seatLabels[seatNumber] && nameOnSeat !== "") {
+          return;
+        }
+
+        // Seat is empty → ask to move
+        if (currentSeat === 0) {
+          alert("Host cannot change seats.");
+        } else {
+          openMovePopup(seatNumber);
         }
       });
     });
+
+    function openMovePopup(seatNumber) {
+      pendingMoveSeat = seatNumber;
+      document.getElementById("movePopupTitle").textContent =
+        `Move to seat ${seatLabels[seatNumber]}?`;
+      document.getElementById("movePopup").classList.remove("hidden");
+    }
+
+    function closeMovePopup() {
+      pendingMoveSeat = null;
+      document.getElementById("movePopup").classList.add("hidden");
+    }
+
+    window.openMovePopup = openMovePopup;
+    window.closeMovePopup = closeMovePopup;
 
     window.openRenamePopup = function () {
       document.getElementById("renamePopup").classList.remove("hidden");
@@ -609,6 +666,26 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
       closeRenamePopup();
     };
 
+    document.getElementById("moveConfirmBtn").onclick = async () => {
+      if (!pendingMoveSeat) return;
+
+      // Double-check no one took the seat during popup
+      const seatEl = document.getElementById("seat-" + pendingMoveSeat);
+      const label = seatLabels[pendingMoveSeat];
+      if (seatEl.textContent.trim() !== label) {
+        alert("Someone took that seat before you!");
+        closeMovePopup();
+        return;
+      }
+
+      await updateDoc(doc(db, "users", currentUID), {
+        seat: pendingMoveSeat
+      });
+
+      currentSeat = pendingMoveSeat;
+      closeMovePopup();
+    };
+
     /* ============================
    FIREBASE USER SESSION
 ============================ */
@@ -623,6 +700,56 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
     function generateRandomName() {
       const num = Math.floor(Math.random() * 90 + 10); // 10–99
       return "nh" + num;
+    }
+
+    async function generateSmartName() {
+      const snap = await getDocs(usersRef);
+
+      // Collect all taken numbers
+      const taken = new Set();
+
+      snap.forEach(u => {
+        const name = u.data().name;
+        const match = /^nh(\d+)$/.exec(name);
+        if (match) {
+          taken.add(parseInt(match[1], 10));
+        }
+      });
+
+      // Random 2-digit starting point (10–99)
+      let num = Math.floor(Math.random() * 90) + 10;
+
+      // Increment until we find a free name
+      while (taken.has(num)) {
+        num++;
+      }
+
+      return "nh" + num;
+    }
+
+    async function specialName() {
+      const snap = await getDocs(usersRef);
+
+      // Track taken numbers 1–9
+      const taken = new Set();
+
+      snap.forEach(u => {
+        const name = u.data().name;
+        const match = /^nh0(\d)$/.exec(name); // matches nh01–nh09
+        if (match) {
+          taken.add(parseInt(match[1], 10)); // 1–9
+        }
+      });
+
+      // Find first available 01–09
+      for (let i = 1; i <= 9; i++) {
+        if (!taken.has(i)) {
+          return "nh0" + i;
+        }
+      }
+
+      // All special names are taken → fallback
+      return null;
     }
 
     /* ---- Pick a seat 1–12 ---- */
@@ -649,7 +776,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
         return;
       }
 
-      currentName = generateRandomName();
+      currentName = await generateSmartName();
 
       const userDoc = await addDoc(usersRef, {
         name: currentName,
@@ -703,10 +830,23 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
    LIVE SEAT RENDERING
 ============================ */
 
+    function generateSeatLabels(totalSeats, seatsPerRow = 6) {
+      const labels = {};
+      for (let i = 1; i <= totalSeats; i++) {
+        const rowIndex = Math.floor((i - 1) / seatsPerRow); // 0,1,2...
+        const rowLetter = String.fromCharCode(65 + rowIndex); // A,B,C,...
+        const number = ((i - 1) % seatsPerRow) + 1; // 1–seatsPerRow
+        labels[i] = rowLetter + number;
+      }
+      return labels;
+    }
+
+    const seatLabels = generateSeatLabels(12, 6);
+
     onSnapshot(usersRef, snapshot => {
       // First, clear all seat labels
       for (let i = 1; i <= 12; i++) {
-        document.getElementById("seat-" + i).textContent = i;
+        document.getElementById("seat-" + i).innerHTML = `<span style="color:#666">${seatLabels[i]}</span>`;
       }
 
       // Render active users
@@ -723,7 +863,8 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
           const seatEl = document.getElementById("seat-" + seat);
 
           if (doc.id === currentUID) {
-            seatEl.innerHTML = `<b>${name}</b>`;
+            seatEl.innerHTML = `<b style="color:#4b8bff">${name}</b>`;
+            document.getElementById("host-seat").innerHTML = `<b>HOST</b>`;
           } else {
             seatEl.textContent = name;
           }
@@ -1118,7 +1259,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
     const titleEl = document.getElementById("titleModeBlock");
     const inputEl = document.getElementById("markdownInput");
 
-    window.videoAlert = function() {
+    window.videoAlert = function () {
       const vidText = `# Intro Video is now live
 <a href="./arenaintro.mp4" target="_blank" style="color:#0468fe; text-decoration:none"><h1>Click here to watch</h1></a>`
       if (inputEl.value != vidText) {
