@@ -394,6 +394,8 @@
     <textarea id="markdownInput" placeholder="Write markdown here..."></textarea>
     <button onclick="applyMarkdown()">Apply</button><br>
 
+    <button onclick="videoAlert()">Show/Hide Video</button>
+
     <!--
     <button onclick="hostShowVideo()">Show Video</button>
     <button onclick="hostStopVideo()">Stop Video</button>
@@ -1114,6 +1116,17 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
     const videoEl = document.getElementById("arenaVideo");
     const markdownEl = document.getElementById("markdownDisplay");
     const titleEl = document.getElementById("titleModeBlock");
+    const inputEl = document.getElementById("markdownInput");
+
+    window.videoAlert = function() {
+      const vidText = `# Intro Video is now live
+<a href="./arenaintro.mp4" target="_blank" style="color:#0468fe; text-decoration:none"><h1>Click here to watch</h1></a>`
+      if (inputEl.value != vidText) {
+        inputEl.value = vidText;
+      } else {
+        inputEl.value = "";
+      }
+    }
 
     function onStageModeRestore() {
       getDoc(stageDoc).then(snap => {
