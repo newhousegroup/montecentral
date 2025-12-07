@@ -33,6 +33,7 @@
 
     body {
       background: var(--bg);
+      background-image: none;
       color: var(--text);
       font-family: 'Inter', sans-serif;
       overflow-x: hidden;
@@ -329,7 +330,6 @@
 
     <!-- MARKDOWN MODE SCREEN -->
     <div id="markdownDisplay" class="stage-screen">
-      <marquee>Welcome to Newhouse Arena.</marquee>
     </div>
 
     <!-- TITLE MODE SCREEN -->
@@ -394,7 +394,9 @@
     <textarea id="markdownInput" placeholder="Write markdown here..."></textarea>
     <button onclick="applyMarkdown()">Apply</button><br>
 
-    <button onclick="videoAlert()">Show/Hide Video</button>
+    <button onclick="videoAlert()">Show/Hide Video</button><br>
+
+    <button onclick="toggleBanquet()">Banquet Background</button>
 
     <!--
     <button onclick="hostShowVideo()">Show Video</button>
@@ -1022,7 +1024,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
         console.log("Stage document not found — creating...");
 
         await setDoc(stageDoc, {
-          markdown: "Welcome to Newhouse Arena.",
+          markdown: "",
           titleMode: false,
           titleText: "Title Text",
 
@@ -1056,7 +1058,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
 
       // Markdown mode
       if (!d.titleMode) {
-        document.getElementById("markdownDisplay").innerHTML = d.markdown != '' ? marked.parse(d.markdown) : `<marquee>Welcome to Newhouse Arena.</marquee>`;
+        document.getElementById("markdownDisplay").innerHTML = d.markdown != '' ? marked.parse(d.markdown) : `<marquee>Welcome to Newhouse Arena. Please take a seat. Click on your name (highlighted in blue) to rename yourself. To change seats, click on any empty seat. We hope you have a pleasant time here.</marquee>`;
         document.getElementById("markdownDisplay").classList.remove("hidden");
         document.getElementById("titleModeBlock").style.display = "none";
       }
@@ -1312,6 +1314,51 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
         document.getElementById("markdownDisplay").classList.remove("hidden");
       }
     });
+
+
+    let banquetOn = false;
+
+    // Listen for banquet mode changes from Firestore
+    onSnapshot(stageDoc, snap => {
+      const d = snap.data();
+      if (!d) return;
+
+      applyBanquetMode(d.banquet === true);
+    });
+
+    function applyBanquetMode(on) {
+      banquetOn = on;
+
+      // Background image
+      document.body.style.backgroundImage = on ? "url('https://newhs.cc/montecentral/banquet.jpg')" : "";
+      document.body.style.backgroundSize = on ? "cover" : "contain";
+      document.body.style.backgroundPosition = "center top";
+
+      // Panels (menu + chat)
+      document.querySelectorAll('.menu-panel, #chatPanel').forEach(el => {
+        if (!el) return;
+        el.style.backgroundColor = on
+          ? "rgba(17,17,21,0.6)"
+          : "#111115";
+      });
+
+      // Stage screen
+      const stage = document.querySelector(".stage-screen");
+      if (stage) {
+        stage.style.backgroundColor = on
+          ? "rgba(0,0,0,0.8)"
+          : "#151518"; // original color
+      }
+    }
+
+    window.toggleBanquet = async function () {
+      const newState = !banquetOn;
+
+      await updateStage({
+        banquet: newState
+      });
+    };
+
 
     joinArena();
   </script>
