@@ -152,7 +152,7 @@
     .seat-grid {
       margin-top: 10px;
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(7, 1fr);
       gap: 26px;
     }
 
@@ -355,7 +355,7 @@
       <!-- 12 seats -->
       <script>
         document.write(
-          new Array(31).fill(0).map((_, i) =>
+          new Array(29).fill(0).map((_, i) =>
             i > 0 ? `<div class='seat' id="seat-${i}" data-seat="${i}">${i}</div>` : ""
           ).join("")
         );
@@ -785,7 +785,7 @@ fireworksToggle.onchange = () => {
         if (s) taken.add(s);
       });
 
-      for (let i = 1; i <= 30; i++) {
+      for (let i = 1; i <= 28; i++) {
         if (!taken.has(i)) return i;
       }
       return null; // auditorium full
@@ -865,11 +865,11 @@ fireworksToggle.onchange = () => {
       return labels;
     }
 
-    const seatLabels = generateSeatLabels(30, 6);
+    const seatLabels = generateSeatLabels(28,7);
 
     onSnapshot(usersRef, snapshot => {
       // First, clear all seat labels
-      for (let i = 1; i <= 30; i++) {
+      for (let i = 1; i <= 28; i++) {
         document.getElementById("seat-" + i).innerHTML = `<span style="color:#666">${seatLabels[i]}</span>`;
       }
 
@@ -883,7 +883,7 @@ fireworksToggle.onchange = () => {
           document.getElementById("host-seat").innerHTML = `<b style="color:gold">HOST</b>`;
         }
 
-        if (seat >= 1 && seat <= 30) {
+        if (seat >= 1 && seat <= 28) {
           const seatEl = document.getElementById("seat-" + seat);
 
           if (doc.id === currentUID) {
