@@ -313,12 +313,41 @@
         transform: rotate(var(--angle));
       }
     }
+
+    #fireworksContainer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  display: none;
+  z-index: 9999;
+}
+
+.fireworkParticle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #ffd700, transparent);
+  border-radius: 50%;
+  animation: explode 1.2s ease-out forwards;
+}
+
+@keyframes explode {
+  0% { transform: scale(0.2); opacity: 1; }
+  70% { transform: scale(2.5); opacity: 0.8; }
+  100% { transform: scale(3); opacity: 0; }
+}
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
 <body>
+  <!-- FIREWORKS -->
+  <div id="fireworksContainer"></div>
 
   <!-- RAVE ELEMENTS -->
   <div id="topGlow"></div>
@@ -393,10 +422,10 @@
     <!-- Markdown Editor -->
     <textarea id="markdownInput" placeholder="Write markdown here..."></textarea>
     <button onclick="applyMarkdown()">Apply</button><br>
-
-    <button onclick="videoAlert()">Show/Hide Video</button><br>
-
-    <button onclick="toggleBanquet()">Banquet Background</button>
+    <b>Video Player</b><br>
+    <button onclick="youtube('JSAGVS6oJlw')">Intro Video</button>  <button onclick="youtubeInput()">Stream Video</button><br>
+<b>Scene Control</b><br>
+    <button onclick="toggleBanquet()">Banquet Background</button>  <button onclick="fireworksToggle()">Start/Stop Fireworks</button>
 
     <!--
     <button onclick="hostShowVideo()">Show Video</button>
@@ -537,6 +566,16 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
         show: false
       });
     }
+
+    // Host toggle for fireworks
+const fireworksToggle = document.getElementById("fireworksToggle");
+
+fireworksToggle.onchange = () => {
+  // Host sets firebase value only – NO local rendering here!
+  updateStage({
+    fireworks: fireworksToggle.checked
+  });
+};
 
     /* Rename and Reseat */
 
@@ -1087,6 +1126,14 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
           chatSend.disabled = false;
         }
       }
+
+      // ---- FIREWORKS DISPLAY SYNC ----
+
+if (d.fireworks === true) {
+  startFireworks();
+} else {
+  stopFireworks();
+}
     });
 
     /* ============================
@@ -1261,14 +1308,17 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
     const titleEl = document.getElementById("titleModeBlock");
     const inputEl = document.getElementById("markdownInput");
 
-    window.videoAlert = function () {
-      const vidText = `# Intro Video is now live
-<a href="./arenaintro.mp4" target="_blank" style="color:#0468fe; text-decoration:none"><h1>Click here to watch</h1></a>`
-      if (inputEl.value != vidText) {
+    window.youtube = function (link) {
+      const vidText = `<center><iframe width="560" height="315" src="https://www.youtube.com/embed/${link}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></center>`;
+
         inputEl.value = vidText;
-      } else {
-        inputEl.value = "";
-      }
+
+    }
+
+    window.youtubeInput = function() {
+      const vidcode = prompt('Please enter the YouTube video code. It is the part found after "youtube.com/watch?v=..."');
+      if (!vidcode) return;
+      youtube(vidcode);
     }
 
     function onStageModeRestore() {
@@ -1359,6 +1409,45 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
       });
     };
 
+    /* Fireworks */
+
+    let fireworksActive = false;
+let fireworkInterval = null;
+
+function startFireworks() {
+  if (fireworksActive) return; // Already running
+  fireworksActive = true;
+
+  const container = document.getElementById("fireworksContainer");
+  container.style.display = "block";
+
+  fireworkInterval = setInterval(() => {
+    spawnFirework(container);
+  }, 500);
+}
+
+function stopFireworks() {
+  fireworksActive = false;
+  clearInterval(fireworkInterval);
+
+  const container = document.getElementById("fireworksContainer");
+  container.innerHTML = "";
+  container.style.display = "none";
+}
+
+function spawnFirework(container) {
+  const fw = document.createElement("div");
+  fw.className = "fireworkParticle";
+
+  fw.style.left = Math.random() * 100 + "%";
+  fw.style.top = Math.random() * 60 + "%";
+
+  container.appendChild(fw);
+
+  setTimeout(() => fw.remove(), 1200);
+}
+
+    
 
     joinArena();
   </script>
