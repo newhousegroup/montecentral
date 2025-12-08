@@ -63,7 +63,7 @@
     .stage-screen {
       width: 100%;
       min-height: 180px;
-      background: rgba(17,17,21,0.8);
+      background: rgba(17, 17, 21, 0.8);
       border-radius: 16px;
       border: 1px solid #333;
       padding: var(--stage-padding);
@@ -89,7 +89,7 @@
 
     #markdownDisplay {
       padding-top: 40px;
-      line-height: 120%;
+      line-height: 100%;
     }
 
     #markdownDisplay p {
@@ -101,7 +101,7 @@
 ========================================================= */
     #titleModeBlock {
       width: 100%;
-      background: rgba(17,17,21,0.6);
+      background: rgba(17, 17, 21, 0.6);
       border-radius: 16px;
       border: 1px solid #333;
       padding: var(--stage-padding);
@@ -189,7 +189,7 @@
       width: 900px;
       max-width: 92%;
       margin: auto;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
       border: 1px solid #333;
       padding: 20px;
       border-radius: 14px;
@@ -322,8 +322,6 @@
         transform: rotate(var(--angle));
       }
     }
-
-
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -331,9 +329,9 @@
 
 <body>
   <!-- FIREWORKS -->
-<canvas id="fireworksCanvas" 
-        style="position:fixed; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:-1000;">
-</canvas>
+  <canvas id="fireworksCanvas"
+    style="position:fixed; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:-1000;">
+  </canvas>
 
   <!-- RAVE ELEMENTS -->
   <div id="topGlow"></div>
@@ -344,8 +342,8 @@
   <div class="arena">
 
     <!-- MARKDOWN MODE SCREEN -->
-    <div id="markdownDisplay" class="stage-screen">
-    </div>
+    <div id="markdownDisplay" class="stage-screen"><div id="markdownText"></div><button style="display:inline-block;padding:10px;background:rgba(0,255,0,0.4);color:#fff;font-weight:600;border-radius:6px;font-size:0.85rem;letter-spacing:0.5px;font-size:20px;"
+      id="congratsBtn">🎉 ...</button></div>
 
     <!-- TITLE MODE SCREEN -->
     <div id="titleModeBlock">
@@ -409,10 +407,11 @@
     <textarea id="markdownInput" placeholder="Write markdown here..."></textarea>
     <button onclick="applyMarkdown()">Apply</button><br>
     <b>Video Player</b><br>
-    <button onclick="youtube('JSAGVS6oJlw')">Intro Video</button>  <button onclick="youtubeInput()">Stream Video</button><br>
-<b>Scene Control</b><br>
+    <button onclick="youtube('JSAGVS6oJlw')">Intro Video</button> <button onclick="youtubeInput()">Stream
+      Video</button><br>
+    <b>Scene Control</b><br>
     <button onclick="toggleBanquet()">Banquet Background</button>
-        <div class="toggle-row">
+    <div class="toggle-row">
       <label>Fireworks</label>
       <input type="checkbox" id="fireworksToggle">
     </div><br>
@@ -559,14 +558,14 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
     }
 
     // Host toggle for fireworks
-const fireworksToggle = document.getElementById("fireworksToggle");
+    const fireworksToggle = document.getElementById("fireworksToggle");
 
-fireworksToggle.onchange = () => {
-  // Host sets firebase value only – NO local rendering here!
-  updateStage({
-    fireworks: fireworksToggle.checked
-  });
-};
+    fireworksToggle.onchange = () => {
+      // Host sets firebase value only – NO local rendering here!
+      updateStage({
+        fireworks: fireworksToggle.checked
+      });
+    };
 
     /* Rename and Reseat */
 
@@ -805,7 +804,7 @@ fireworksToggle.onchange = () => {
       if (window.screen.width < 800) {
         alert("Newhouse Arena works best on tablets and desktops. For mobile, please set your browser zoom to 50%.");
       }
-      
+
       currentSeat = await findSeat();
       if (!currentSeat) {
         alert("Arena is full.");
@@ -848,6 +847,7 @@ fireworksToggle.onchange = () => {
       });
     }
 
+    cleanupInactiveUsers();
     setInterval(cleanupInactiveUsers, 20000);
 
     /* ---- Allow username change anytime ---- */
@@ -870,7 +870,7 @@ fireworksToggle.onchange = () => {
       const labels = {};
       for (let i = 1; i <= totalSeats; i++) {
         const rowIndex = Math.floor((i - 1) / seatsPerRow); // 0,1,2...
-        const rowLetters = ["A","B","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","S","T","U","V","W","X","Y","Z"];
+        const rowLetters = ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
         const rowLetter = rowLetters[rowIndex];
         const number = ((i - 1) % seatsPerRow) + 1; // 1–seatsPerRow
         labels[i] = rowLetter + number;
@@ -878,7 +878,7 @@ fireworksToggle.onchange = () => {
       return labels;
     }
 
-    const seatLabels = generateSeatLabels(12,6);
+    const seatLabels = generateSeatLabels(12, 6);
 
     onSnapshot(usersRef, snapshot => {
       // First, clear all seat labels
@@ -1093,7 +1093,7 @@ fireworksToggle.onchange = () => {
 
       // Markdown mode
       if (!d.titleMode) {
-        document.getElementById("markdownDisplay").innerHTML = d.markdown != '' ? marked.parse(d.markdown) : `<marquee>Welcome to Newhouse Arena. Please take a seat. Click on your name (highlighted in blue) to rename yourself. To change seats, click on any empty seat. We hope you have a pleasant time here.</marquee>`;
+        document.getElementById("markdownText").innerHTML = d.markdown != '' ? marked.parse(d.markdown) : `<marquee>Welcome to Newhouse Arena. Please take a seat. Click on your name (highlighted in blue) to rename yourself. To change seats, click on any empty seat. We hope you have a pleasant time here.</marquee>`;
         document.getElementById("markdownDisplay").classList.remove("hidden");
         document.getElementById("titleModeBlock").style.display = "none";
       }
@@ -1125,11 +1125,11 @@ fireworksToggle.onchange = () => {
 
       // ---- FIREWORKS DISPLAY SYNC ----
 
-if (d.fireworks === true) {
-  startFireworks();
-} else {
-  stopFireworks();
-}
+      if (d.fireworks === true) {
+        startFireworks();
+      } else {
+        stopFireworks();
+      }
     });
 
     /* ============================
@@ -1307,11 +1307,11 @@ if (d.fireworks === true) {
     window.youtube = function (link) {
       const vidText = `<center><iframe width="560" height="315" src="https://www.youtube.com/embed/${link}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></center>`;
 
-        inputEl.value = vidText;
+      inputEl.value = vidText;
 
     }
 
-    window.youtubeInput = function() {
+    window.youtubeInput = function () {
       const vidcode = prompt('Please enter the YouTube video code. It is the part found after "youtube.com/watch?v=..."');
       if (!vidcode) return;
       youtube(vidcode);
@@ -1393,163 +1393,212 @@ if (d.fireworks === true) {
 
     /* Fireworks */
 
-/* ============================================================
-   NEW FIREWORKS ENGINE — SAFE, NO ERRORS
-============================================================ */
+    /* ============================================================
+       NEW FIREWORKS ENGINE — SAFE, NO ERRORS
+    ============================================================ */
 
-// Engine state
-let fireworksRunning = false;
-let fwInitialized = false;
-let fwCanvas = null;
-let fwCtx = null;
-let fwParticles = [];
+    // Engine state
+    let fireworksRunning = false;
+    let fwInitialized = false;
+    let fwCanvas = null;
+    let fwCtx = null;
+    let fwParticles = [];
 
-/* ------------------------------------------------------------
-   INITIALIZATION (SAFE)
------------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       INITIALIZATION (SAFE)
+    ------------------------------------------------------------ */
 
-function initFireworks() {
-  if (fwInitialized) return;
+    function initFireworks() {
+      if (fwInitialized) return;
 
-  fwCanvas = document.getElementById("fireworksCanvas");
+      fwCanvas = document.getElementById("fireworksCanvas");
 
-  // If canvas not in DOM yet, retry soon
-  if (!fwCanvas) {
-    console.warn("fireworksCanvas not found yet… retrying");
-    setTimeout(initFireworks, 300);
-    return;
-  }
+      // If canvas not in DOM yet, retry soon
+      if (!fwCanvas) {
+        console.warn("fireworksCanvas not found yet… retrying");
+        setTimeout(initFireworks, 300);
+        return;
+      }
 
-  fwCtx = fwCanvas.getContext("2d");
-  resizeFireworks();
+      fwCtx = fwCanvas.getContext("2d");
+      resizeFireworks();
 
-  window.addEventListener("resize", resizeFireworks);
+      window.addEventListener("resize", resizeFireworks);
 
-  fwInitialized = true;
-  console.log("Fireworks engine initialized.");
-}
+      fwInitialized = true;
+      console.log("Fireworks engine initialized.");
+    }
 
-function resizeFireworks() {
-  if (!fwCanvas) return;
-  fwCanvas.width = window.innerWidth;
-  fwCanvas.height = window.innerHeight;
-}
+    function resizeFireworks() {
+      if (!fwCanvas) return;
+      fwCanvas.width = window.innerWidth;
+      fwCanvas.height = window.innerHeight;
+    }
 
-/* ------------------------------------------------------------
-   PARTICLE CLASS
------------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       PARTICLE CLASS
+    ------------------------------------------------------------ */
 
-class FireworkParticle {
-  constructor(x, y, color) {
-    this.x = x;
-    this.y = y;
+    class FireworkParticle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
 
-    const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 4 + 2;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 4 + 2;
 
-    this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle) * speed;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
 
-    this.alpha = 1;
-    this.color = color;
+        this.alpha = 1;
+        this.color = color;
 
-    this.friction = 0.95;
-    this.gravity = 0.05;
-    this.decay = Math.random() * 0.015 + 0.01;
-  }
+        this.friction = 0.95;
+        this.gravity = 0.05;
+        this.decay = Math.random() * 0.015 + 0.01;
+      }
 
-  update() {
-    this.vx *= this.friction;
-    this.vy = this.vy * this.friction + this.gravity;
+      update() {
+        this.vx *= this.friction;
+        this.vy = this.vy * this.friction + this.gravity;
 
-    this.x += this.vx;
-    this.y += this.vy;
+        this.x += this.vx;
+        this.y += this.vy;
 
-    this.alpha -= this.decay;
-  }
+        this.alpha -= this.decay;
+      }
 
-  draw(ctx) {
-    ctx.save();
-    ctx.globalAlpha = this.alpha;
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, 2.2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-}
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
 
-/* ------------------------------------------------------------
-   SPAWN ONE FIREWORK BURST
------------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       SPAWN ONE FIREWORK BURST
+    ------------------------------------------------------------ */
 
-function spawnFirework() {
-  if (!fwCanvas) return;
+    function spawnFirework() {
+      if (!fwCanvas) return;
 
-  const x = Math.random() * fwCanvas.width;
-  const y = Math.random() * fwCanvas.height * 0.4 + 100;
+      const x = Math.random() * fwCanvas.width;
+      const y = Math.random() * fwCanvas.height * 0.4 + 100;
 
-  const hue = Math.floor(Math.random() * 360);
-  const color = `hsl(${hue}, 100%, 60%)`;
+      const hue = Math.floor(Math.random() * 360);
+      const color = `hsl(${hue}, 100%, 60%)`;
 
-  const count = 50 + Math.random() * 50;
+      const count = 50 + Math.random() * 50;
 
-  for (let i = 0; i < count; i++) {
-    fwParticles.push(new FireworkParticle(x, y, color));
-  }
-}
+      for (let i = 0; i < count; i++) {
+        fwParticles.push(new FireworkParticle(x, y, color));
+      }
+    }
 
-/* ------------------------------------------------------------
-   FRAME LOOP
------------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       FRAME LOOP
+    ------------------------------------------------------------ */
 
-function renderFireworksFrame() {
-  if (!fireworksRunning || !fwCtx) return;
-  requestAnimationFrame(renderFireworksFrame);
+    function renderFireworksFrame() {
+      if (!fireworksRunning || !fwCtx) return;
+      requestAnimationFrame(renderFireworksFrame);
 
-  // Fade background
-  fwCtx.fillStyle = "rgba(0, 0, 0, 0.15)";
-  fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+      // Fade background
+      fwCtx.fillStyle = "rgba(0, 0, 0, 0.15)";
+      fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
 
-  // Update particle list
-  fwParticles = fwParticles.filter(p => p.alpha > 0);
+      // Update particle list
+      fwParticles = fwParticles.filter(p => p.alpha > 0);
 
-  fwParticles.forEach(p => {
-    p.update();
-    p.draw(fwCtx);
-  });
+      fwParticles.forEach(p => {
+        p.update();
+        p.draw(fwCtx);
+      });
 
-  // Spawn occasional bursts
-  if (Math.random() < 0.05) {
-    spawnFirework();
-  }
-}
+      // Spawn occasional bursts
+      if (Math.random() < 0.05) {
+        spawnFirework();
+      }
+    }
 
-/* ------------------------------------------------------------
-   PUBLIC CONTROL FUNCTIONS
------------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       PUBLIC CONTROL FUNCTIONS
+    ------------------------------------------------------------ */
 
-window.startFireworks = function () {
-  if (!fwInitialized) initFireworks();
-  if (fireworksRunning) return;
+    window.startFireworks = function () {
+      if (!fwInitialized) initFireworks();
+      if (fireworksRunning) return;
 
-  fireworksRunning = true;
-  console.log("Fireworks started");
+      fireworksRunning = true;
+      console.log("Fireworks started");
 
-  
-  renderFireworksFrame();
-}
 
-window.stopFireworks = function () {
-  fireworksRunning = false;
-  
-  console.log("Fireworks stopped");
-  // particles remain but fade out naturally
-}
+      renderFireworksFrame();
+    }
 
-    
-    
-    
+    window.stopFireworks = function () {
+      fireworksRunning = false;
+
+      console.log("Fireworks stopped");
+      // particles remain but fade out naturally
+    }
+
+
+
+    /* ============================
+       APiCTA LIVE SYNC + CLICK INCREMENT
+    ============================ */
+
+    const interactDoc = doc(db, "arena", "interact");
+    const congratsEl = document.getElementById("congratsBtn");
+
+    let apictaCooldown = false;  // <-- cooldown flag
+
+    /* --- Ensure doc exists --- */
+    getDoc(interactDoc).then(snap => {
+      if (!snap.exists()) {
+        setDoc(interactDoc, { apicta: 0 }, { merge: true });
+      }
+    });
+
+    /* --- Live listener from Firestore --- */
+    onSnapshot(interactDoc, snap => {
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+      const value = data.apicta ?? 0;
+
+      congratsEl.innerHTML = `🎉 ${value}`;
+    });
+
+    /* --- Increment on click (with cooldown) --- */
+    congratsEl.addEventListener("click", async () => {
+      congratsEl.style.background = "#aaaa00aa";
+      congratsEl.style.boxShadow = "0 0 15px #ffff00aa";
+
+      // prevent spam
+      if (apictaCooldown) return;
+      apictaCooldown = true;
+      setTimeout(() => apictaCooldown = false, 250); // 250ms cooldown
+
+      const snap = await getDoc(interactDoc);
+      if (!snap.exists()) return;
+
+      const current = snap.data().apicta ?? 0;
+
+      await updateDoc(interactDoc, {
+        apicta: current + 1
+      });
+
+        setTimeout(() => {
+          congratsEl.style.background = "#00ff0066";
+          congratsEl.style.boxShadow = "none";
+        }, 100);
+    });
 
     joinArena();
   </script>
