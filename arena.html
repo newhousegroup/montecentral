@@ -161,7 +161,7 @@
     .seat-grid {
       margin-top: 10px;
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 26px;
     }
 
@@ -362,7 +362,7 @@
       <!-- 12 seats -->
       <script>
         document.write(
-          new Array(22).fill(0).map((_, i) =>
+          new Array(13).fill(0).map((_, i) =>
             i > 0 ? `<div class='seat' id="seat-${i}" data-seat="${i}">...</div>` : ""
           ).join("")
         );
@@ -793,7 +793,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
         if (s) taken.add(s);
       });
 
-      for (let i = 1; i <= 21; i++) {
+      for (let i = 1; i <= 12; i++) {
         if (!taken.has(i)) return i;
       }
       return null; // auditorium full
@@ -880,12 +880,12 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
       return labels;
     }
 
-    const seatLabels = generateSeatLabels(21, 7);
+    const seatLabels = generateSeatLabels(12,6);
     const guests = ["Tim","Pong","Fost","Papon"];
 
     onSnapshot(usersRef, snapshot => {
       // First, clear all seat labels
-      for (let i = 1; i <= 21; i++) {
+      for (let i = 1; i <= 12; i++) {
         document.getElementById("seat-" + i).innerHTML = `<span style="color:#666">${seatLabels[i]}</span>`;
       }
 
@@ -899,7 +899,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
           document.getElementById("host-seat").innerHTML = `<b style="color:gold">HOST</b>`;
         }
 
-        if (seat >= 1 && seat <= 21) {
+        if (seat >= 1 && seat <= 12) {
           const seatEl = document.getElementById("seat-" + seat);
 
           if (doc.id === currentUID) {
