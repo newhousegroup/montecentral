@@ -152,7 +152,7 @@
     .seat-grid {
       margin-top: 10px;
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 26px;
     }
 
@@ -865,7 +865,7 @@ fireworksToggle.onchange = () => {
       return labels;
     }
 
-    const seatLabels = generateSeatLabels(12,6);
+    const seatLabels = generateSeatLabels(12,4);
 
     onSnapshot(usersRef, snapshot => {
       // First, clear all seat labels
