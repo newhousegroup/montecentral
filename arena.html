@@ -1535,11 +1535,37 @@ window.startFireworks = function () {
 
   fireworksRunning = true;
   console.log("Fireworks started");
+
+        // Panels (menu + chat)
+      document.querySelectorAll('.menu-panel, #chatPanel').forEach(el => {
+        if (!el) return;
+        el.style.backgroundColor = "rgba(17,17,21,0.6)";
+      });
+
+      // Stage screen
+      const stage = document.querySelector(".stage-screen");
+      if (stage) {
+        stage.style.backgroundColor = "rgba(0,0,0,0.8)";
+      }
+  
   renderFireworksFrame();
 }
 
 window.stopFireworks = function () {
   fireworksRunning = false;
+
+          // Panels (menu + chat)
+      document.querySelectorAll('.menu-panel, #chatPanel').forEach(el => {
+        if (!el) return;
+        el.style.backgroundColor = "#111115";
+      });
+
+      // Stage screen
+      const stage = document.querySelector(".stage-screen");
+      if (stage) {
+        stage.style.backgroundColor = "#151518";
+      }
+  
   console.log("Fireworks stopped");
   // particles remain but fade out naturally
 }
