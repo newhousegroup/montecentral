@@ -813,7 +813,8 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
       }
 
       // currentName = await generateSmartName();
-      currentName = prompt("Please enter a username. Maximum 6 characters").slice(0,6) || await generateSmartName();
+      const u = prompt("Please enter a username. Maximum 6 characters").slice(0,6);
+      currentName = (!u||await isNameTaken(u)) ? await generateSmartName() : u;
 
       const userDoc = await addDoc(usersRef, {
         name: currentName,
