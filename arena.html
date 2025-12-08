@@ -63,7 +63,7 @@
     .stage-screen {
       width: 100%;
       min-height: 180px;
-      background: #151518;
+      background: rgba(17,17,21,0.6);
       border-radius: 16px;
       border: 1px solid #333;
       padding: var(--stage-padding);
@@ -92,7 +92,7 @@
 ========================================================= */
     #titleModeBlock {
       width: 100%;
-      background: #151518;
+      background: rgba(17,17,21,0.6);
       border-radius: 16px;
       border: 1px solid #333;
       padding: var(--stage-padding);
@@ -180,7 +180,7 @@
       width: 900px;
       max-width: 92%;
       margin: auto;
-      background: #111115;
+      background: rgba(0,0,0,0.8);
       border: 1px solid #333;
       padding: 20px;
       border-radius: 14px;
@@ -1366,21 +1366,7 @@ if (d.fireworks === true) {
       document.body.style.backgroundSize = on ? "cover" : "contain";
       document.body.style.backgroundPosition = "center top";
 
-      // Panels (menu + chat)
-      document.querySelectorAll('.menu-panel, #chatPanel').forEach(el => {
-        if (!el) return;
-        el.style.backgroundColor = on
-          ? "rgba(17,17,21,0.6)"
-          : "#111115";
-      });
 
-      // Stage screen
-      const stage = document.querySelector(".stage-screen");
-      if (stage) {
-        stage.style.backgroundColor = on
-          ? "rgba(0,0,0,0.8)"
-          : "#151518"; // original color
-      }
     }
 
     window.toggleBanquet = async function () {
@@ -1569,6 +1555,9 @@ window.stopFireworks = function () {
   console.log("Fireworks stopped");
   // particles remain but fade out naturally
 }
+
+    
+    
     
 
     joinArena();
