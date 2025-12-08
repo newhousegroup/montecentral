@@ -1419,37 +1419,109 @@ if (d.fireworks === true) {
     let fireworksActive = false;
 let fireworkInterval = null;
 
+/* ============================================================
+   NEW FIREWORKS ENGINE — Same function names as before
+============================================================ */
+
+let fireworksRunning = false;
+let fwCanvas = document.getElementById("fireworksCanvas");
+let fwCtx = fwCanvas.getContext("2d");
+
+function resizeFireworks() {
+  fwCanvas.width = window.innerWidth;
+  fwCanvas.height = window.innerHeight;
+}
+
+resizeFireworks();
+window.addEventListener("resize", resizeFireworks);
+
+// Particle object
+class FWParticle {
+  constructor(x, y, color, angle, speed) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+
+    this.alpha = 1;
+    this.life = 60 + Math.random() * 40;
+  }
+
+  update() {
+    this.vx *= 0.97;
+    this.vy *= 0.97;
+    this.vy += 0.03; // gravity
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    this.life--;
+    this.alpha -= 0.015;
+  }
+
+  draw(ctx) {
+    ctx.globalAlpha = Math.max(this.alpha, 0);
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+let fwParticles = [];
+let fwLastTime = 0;
+
+// create single firework burst
+function spawnFirework() {
+  const x = Math.random() * fwCanvas.width;
+  const y = Math.random() * (fwCanvas.height * 0.4);
+
+  const colors = ["#ff5263", "#ff9d42", "#4d9cff", "#c84dff", "#4dffb3", "#ffffff"];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+
+  const count = 70 + Math.random() * 40;
+
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 5;
+    fwParticles.push(new FWParticle(x, y, color, angle, speed));
+  }
+}
+
+// animation loop
+function renderFireworksFrame(timestamp) {
+  if (!fireworksRunning) return;
+
+  requestAnimationFrame(renderFireworksFrame);
+
+  fwCtx.fillStyle = "rgba(0,0,0,0.18)";
+  fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+  fwParticles = fwParticles.filter(p => p.life > 0 && p.alpha > 0);
+
+  fwParticles.forEach(p => {
+    p.update();
+    p.draw(fwCtx);
+  });
+
+  if (Math.random() < 0.06) {
+    spawnFirework();
+  }
+}
+
+// START fireworks
 function startFireworks() {
-  if (fireworksActive) return; // Already running
-  fireworksActive = true;
-
-  const container = document.getElementById("fireworksContainer");
-  container.style.display = "block";
-
-  fireworkInterval = setInterval(() => {
-    spawnFirework(container);
-  }, 500);
+  if (fireworksRunning) return;
+  fireworksRunning = true;
+  renderFireworksFrame();
 }
 
+// STOP fireworks
 function stopFireworks() {
-  fireworksActive = false;
-  clearInterval(fireworkInterval);
-
-  const container = document.getElementById("fireworksContainer");
-  container.innerHTML = "";
-  container.style.display = "none";
-}
-
-function spawnFirework(container) {
-  const fw = document.createElement("div");
-  fw.className = "fireworkParticle";
-
-  fw.style.left = Math.random() * 100 + "%";
-  fw.style.top = Math.random() * 60 + "%";
-
-  container.appendChild(fw);
-
-  setTimeout(() => fw.remove(), 1200);
+  fireworksRunning = false;
 }
 
     
