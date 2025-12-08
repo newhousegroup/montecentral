@@ -382,7 +382,7 @@
 
     <div id="chatBox" style="
     height:180px; overflow-y:auto;
-    background:#0e0e11; border:1px solid #333;
+    background:rgba(17, 17, 21, 0.8); border:1px solid #333;
     padding:10px; border-radius:8px; margin-bottom:10px;
     font-size:0.9rem; line-height:1.45;
   ">
@@ -1541,6 +1541,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
       if (fireworksRunning) return;
 
       fireworksRunning = true;
+      fireworksCanvas.style.display = "block";
       console.log("Fireworks started");
 
 
@@ -1549,6 +1550,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
 
     window.stopFireworks = function () {
       fireworksRunning = false;
+      fireworksCanvas.style.display = "none";
 
       console.log("Fireworks stopped");
       // particles remain but fade out naturally
