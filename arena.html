@@ -425,12 +425,17 @@
     <b>Video Player</b><br>
     <button onclick="youtube('JSAGVS6oJlw')">Intro Video</button>  <button onclick="youtubeInput()">Stream Video</button><br>
 <b>Scene Control</b><br>
-    <button onclick="toggleBanquet()">Banquet Background</button>  <button onclick="fireworksToggle()">Start/Stop Fireworks</button>
+    <button onclick="toggleBanquet()">Banquet Background</button>
+        <div class="toggle-row">
+      <label>Fireworks</label>
+      <input type="checkbox" id="fireworksToggle">
+    </div><br>
 
     <!--
     <button onclick="hostShowVideo()">Show Video</button>
     <button onclick="hostStopVideo()">Stop Video</button>
     -->
+    <b>Other settings</b>
 
     <div class="toggle-row">
       <label><b>Mute Chat</b></label>
