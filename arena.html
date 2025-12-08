@@ -1063,7 +1063,7 @@ fireworksToggle.onchange = () => {
 
     async function ensureStageDocument() {
       const snap = await getDoc(stageDoc);
-
+/*
       if (!snap.exists()) {
         console.log("Stage document not found — creating...");
 
@@ -1086,7 +1086,7 @@ fireworksToggle.onchange = () => {
         console.log("Stage document already exists.");
       }
     }
-
+*/}
     // Run at startup
     ensureStageDocument();
 
@@ -1523,6 +1523,9 @@ function startFireworks() {
 function stopFireworks() {
   fireworksRunning = false;
 }
+
+    window.startFireworks = startFireworks;
+    window.stopFireworks = stopFireworks;
 
     
 
