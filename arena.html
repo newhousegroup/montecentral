@@ -73,6 +73,15 @@
       white-space: pre-wrap;
     }
 
+    #markdownDisplay a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    #markdownDisplay h1 {
+      line-height: 110%;
+    }
+
     /* Hides when in title mode */
     #markdownDisplay.hidden {
       display: none;
@@ -152,7 +161,7 @@
     .seat-grid {
       margin-top: 10px;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 26px;
     }
 
@@ -793,6 +802,10 @@ fireworksToggle.onchange = () => {
 
     /* ---- Join system (runs on page load) ---- */
     async function joinArena() {
+      if (window.screen.width < 800) {
+        alert("Newhouse Arena works best on tablets and desktops. For mobile, please set your browser zoom to 50%.");
+      }
+      
       currentSeat = await findSeat();
       if (!currentSeat) {
         alert("Arena is full.");
@@ -819,7 +832,7 @@ fireworksToggle.onchange = () => {
       updateDoc(doc(db, "users", currentUID), {
         lastActive: serverTimestamp()
       });
-    }, 10000); // every 5 sec
+    }, 5000); // every 5 sec
 
     async function cleanupInactiveUsers() {
       const snap = await getDocs(usersRef);
@@ -829,7 +842,7 @@ fireworksToggle.onchange = () => {
         const data = u.data();
         const last = data.lastActive?.toMillis() ?? 0;
 
-        if (now - last > 120000 && u.id != currentUID) { // inactive > 30 sec
+        if (now - last > 60000 && u.id != currentUID) { // inactive > 30 sec
           deleteDoc(doc(db, "users", u.id));
         }
       });
@@ -865,7 +878,7 @@ fireworksToggle.onchange = () => {
       return labels;
     }
 
-    const seatLabels = generateSeatLabels(12,4);
+    const seatLabels = generateSeatLabels(12,6);
 
     onSnapshot(usersRef, snapshot => {
       // First, clear all seat labels
