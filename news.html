@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kirky Derby Broadcast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #000;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Camera area */
+    .camera {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 90px);
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+      font-size: 32px;
+      letter-spacing: 2px;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Bottom bar */
+    .broadcast-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 90px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      border-top: 3px solid #fff;
+      z-index: 999;
+    }
+
+    .ticker {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker-content {
+      display: inline-block;
+      padding-left: 100%;
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+      animation: scroll-left 270s linear infinite;
+    }
+
+    .clock {
+      width: 300px;
+      text-align: center;
+      font-size: 52px;
+      font-weight: 900;
+      color: #fff;
+      border-left: 3px solid #fff;
+      border-right: 3px solid #fff;
+      letter-spacing: 3px;
+    }
+
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Camera container -->
+  <div class="camera" id="camera">
+    LIVE CAMERA FEED
+  </div>
+
+  <!-- Bottom ticker -->
+  <div class="broadcast-bar">
+    <div class="ticker">
+      <div class="ticker-content">
+KIRKY DERBY LIVE FROM CHARLIE KIRK MEMORIAL STADIUM • KIRK UNITED VS HARMONY 67 • WEATHER REMAINS WARM AND HUMID WITH LIGHT BREEZE ACROSS THE CITY • FULL-TIME SCORE KUN 2–0 HFC • THAILAND COMPUTER FESTIVAL ORGANIZING COMMITTEE CONTINUES PLANNING FOR UPCOMING STUDENT-LED EVENTS • SPECIAL HARMONY 67 PLAYER RETRIEVES BALL THAT EXITED THE STADIUM DURING FIRST HALF TO CROWD APPLAUSE • GLOBAL MARKETS MIXED IN LATE TRADING • NEWHOUSE CONTINUES DEVELOPMENT OF INDEPENDENT PROJECTS OUTSIDE EVENT SPACE • CEREMONIAL RUN HELD IN HONOR OF CHARLIE KIRK WITH PLAYERS OFFICIALS AND MEMBERS OF THE AUDIENCE PARTICIPATING • TRANSPORT HUBS REPORT STEADY EVENING TRAFFIC • KIRK UNITED CAPITALIZE ON CHANCES AT THEIR HOME GROUND TO CLAIM OPENING BRAGGING RIGHTS • TCF REAFFIRMS EMPHASIS ON FAIRNESS LEARNING AND ACCESSIBILITY • MOMENT OF SILENCE OBSERVED ACROSS CHARLIE KIRK MEMORIAL STADIUM • TECHNOLOGY SECTOR CONTINUES RAPID ADAPTATION WORLDWIDE • HARMONY 67 PRAISED FOR UNITY AND SPORTSMANSHIP THROUGHOUT THE MATCH • NEWHOUSE TEAMS COLLABORATE IN SMALL FLEXIBLE GROUPS • SECOND-HALF INTERRUPTION AFTER A DISPLEASED SUPPORTER THROWS A SHOE ONTO THE PITCH • INTERNATIONAL SPORTS FIXTURES CONTINUE ACROSS MULTIPLE TIME ZONES • SAME SPECIAL PLAYER CALMLY RETURNS THE OBJECT TO THE SIDELINE TO SUSTAINED APPLAUSE • TCF COMMUNITY CONTINUES TO EXPAND ACROSS MULTIPLE SCHOOLS • DIGITAL COMMUNITIES SHOW HIGH LEVELS OF ENGAGEMENT • SCORE ORDER ALWAYS LISTED AS K V H BY CONVENTION • NEWHOUSE UPDATES EXPECTED AT A LATER DATE • CHARLIE KIRK MEMORIAL STADIUM CONFIRMED AS HOME OF KIRK UNITED • EDUCATION COMMUNITIES WORLDWIDE EXPLORE NEW MODELS OF LEARNING • MATCH GRAPHICS AND ARCHIVES CURRENTLY BEING COMPILED • FINAL SCORE REMINDER KIRK UNITED 2–0 HARMONY 67 • MORE COVERAGE TO FOLLOW
+      </div>
+    </div>
+
+    <div class="clock" id="clock">00:00:00</div>
+  </div>
+
+  <script>
+    // CLOCK
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // CAMERA
+    const cameraDiv = document.getElementById('camera');
+
+    function startCamera(constraints) {
+      return navigator.mediaDevices.getUserMedia(constraints);
+    }
+
+    async function initCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return;
+      }
+
+      try {
+        // Try BACK camera first
+        const stream = await startCamera({
+          video: { facingMode: { exact: "environment" } },
+          audio: false
+        });
+        attachStream(stream);
+      } catch (e) {
+        try {
+          // Fallback to FRONT camera
+          const stream = await startCamera({
+            video: { facingMode: "user" },
+            audio: false
+          });
+          attachStream(stream);
+        } catch (err) {
+          // No camera available
+          console.warn("Camera unavailable");
+        }
+      }
+    }
+
+    function attachStream(stream) {
+      const video = document.createElement('video');
+      video.autoplay = true;
+      video.playsInline = true;
+      video.srcObject = stream;
+
+      cameraDiv.innerHTML = '';
+      cameraDiv.appendChild(video);
+    }
+
+    initCamera();
+  </script>
+
+</body>
+</html>
