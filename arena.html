@@ -34,6 +34,7 @@
     body {
       background: var(--bg);
       background-image: none;
+      background-attachment: fixed;
       color: var(--text);
       font-family: 'Inter', sans-serif;
       overflow-x: hidden;
@@ -343,7 +344,7 @@
 
     <!-- MARKDOWN MODE SCREEN -->
     <div id="markdownDisplay" class="stage-screen"><div id="markdownText"></div><button style="display:inline-block;padding:10px;background:rgba(0,255,0,0.4);color:#fff;font-weight:600;border-radius:6px;font-size:0.85rem;letter-spacing:0.5px;font-size:20px;"
-      id="congratsBtn">🎉 ...</button></div>
+      id="congratsBtn" class="hidden">🎉 ...</button></div>
 
     <!-- TITLE MODE SCREEN -->
     <div id="titleModeBlock">
@@ -890,7 +891,7 @@ if (u === null) {
     }
 
     const seatLabels = generateSeatLabels(12,6);
-    const guests = ["Tim","Pong","Fost","Papon"];
+    const guests = [];
 
     onSnapshot(usersRef, snapshot => {
       // First, clear all seat labels
