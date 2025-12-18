@@ -42,7 +42,7 @@
     }
 
     .hidden {
-      display: none;
+      display: none !important;
     }
 
     /* =========================================================
@@ -343,8 +343,7 @@
   <div class="arena">
 
     <!-- MARKDOWN MODE SCREEN -->
-    <div id="markdownDisplay" class="stage-screen"><div id="markdownText"></div><button style="display:inline-block;padding:10px;background:rgba(0,255,0,0.4);color:#fff;font-weight:600;border-radius:6px;font-size:0.85rem;letter-spacing:0.5px;font-size:20px;"
-      id="congratsBtn" class="hidden">🎉 ...</button></div>
+    <div id="markdownDisplay" class="stage-screen"><div id="markdownText"></div></div>
 
     <!-- TITLE MODE SCREEN -->
     <div id="titleModeBlock">
@@ -1571,20 +1570,20 @@ if (u === null) {
     /* ============================
        APiCTA LIVE SYNC + CLICK INCREMENT
     ============================ */
-
+/*
     const interactDoc = doc(db, "arena", "interact");
     const congratsEl = document.getElementById("congratsBtn");
 
     let apictaCooldown = false;  // <-- cooldown flag
 
-    /* --- Ensure doc exists --- */
+
     getDoc(interactDoc).then(snap => {
       if (!snap.exists()) {
         setDoc(interactDoc, { apicta: 0 }, { merge: true });
       }
     });
 
-    /* --- Live listener from Firestore --- */
+
     onSnapshot(interactDoc, snap => {
       if (!snap.exists()) return;
 
@@ -1594,7 +1593,7 @@ if (u === null) {
       congratsEl.innerHTML = `🎉 ${value}`;
     });
 
-    /* --- Increment on click (with cooldown) --- */
+
     congratsEl.addEventListener("click", async () => {
       congratsEl.style.background = "#aaaa00aa";
       congratsEl.style.boxShadow = "0 0 15px #ffff00aa";
@@ -1618,6 +1617,7 @@ if (u === null) {
           congratsEl.style.boxShadow = "none";
         }, 100);
     });
+    */
 
     joinArena();
   </script>
