@@ -343,7 +343,9 @@
   <div class="arena">
 
     <!-- MARKDOWN MODE SCREEN -->
-    <div id="markdownDisplay" class="stage-screen"><div id="markdownText"></div></div>
+    <div id="markdownDisplay" class="stage-screen">
+      <div id="markdownText"></div>
+    </div>
 
     <!-- TITLE MODE SCREEN -->
     <div id="titleModeBlock">
@@ -813,17 +815,17 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
       }
 
       // currentName = await generateSmartName();
-let u = prompt("Please enter a username. Maximum 6 characters");
+      let u = prompt("Please enter a username. Maximum 6 characters");
 
-if (u === null) {
-  // user pressed Cancel
-  currentName = await generateSmartName();
-} else {
-  u = u.trim().slice(0, 6);
-  currentName = (!u || await isNameTaken(u))
-    ? await generateSmartName()
-    : u;
-}
+      if (u === null) {
+        // user pressed Cancel
+        currentName = await generateSmartName();
+      } else {
+        u = u.trim().slice(0, 6);
+        currentName = (!u || await isNameTaken(u))
+          ? await generateSmartName()
+          : u;
+      }
 
       const userDoc = await addDoc(usersRef, {
         name: currentName,
@@ -889,7 +891,7 @@ if (u === null) {
       return labels;
     }
 
-    const seatLabels = generateSeatLabels(12,6);
+    const seatLabels = generateSeatLabels(12, 6);
     const guests = [];
 
     onSnapshot(usersRef, snapshot => {
@@ -1146,6 +1148,8 @@ if (u === null) {
       } else {
         stopFireworks();
       }
+
+      activateStageWidgets();
     });
 
     /* ============================
@@ -1570,54 +1574,76 @@ if (u === null) {
     /* ============================
        APiCTA LIVE SYNC + CLICK INCREMENT
     ============================ */
-/*
-    const interactDoc = doc(db, "arena", "interact");
-    const congratsEl = document.getElementById("congratsBtn");
+    /*
+        const interactDoc = doc(db, "arena", "interact");
+        const congratsEl = document.getElementById("congratsBtn");
+    
+        let apictaCooldown = false;  // <-- cooldown flag
+    
+    
+        getDoc(interactDoc).then(snap => {
+          if (!snap.exists()) {
+            setDoc(interactDoc, { apicta: 0 }, { merge: true });
+          }
+        });
+    
+    
+        onSnapshot(interactDoc, snap => {
+          if (!snap.exists()) return;
+    
+          const data = snap.data();
+          const value = data.apicta ?? 0;
+    
+          congratsEl.innerHTML = `🎉 ${value}`;
+        });
+    
+    
+        congratsEl.addEventListener("click", async () => {
+          congratsEl.style.background = "#aaaa00aa";
+          congratsEl.style.boxShadow = "0 0 15px #ffff00aa";
+    
+          // prevent spam
+          if (apictaCooldown) return;
+          apictaCooldown = true;
+          setTimeout(() => apictaCooldown = false, 250); // 250ms cooldown
+    
+          const snap = await getDoc(interactDoc);
+          if (!snap.exists()) return;
+    
+          const current = snap.data().apicta ?? 0;
+    
+          await updateDoc(interactDoc, {
+            apicta: current + 1
+          });
+    
+            setTimeout(() => {
+              congratsEl.style.background = "#00ff0066";
+              congratsEl.style.boxShadow = "none";
+            }, 100);
+        });
+        */
 
-    let apictaCooldown = false;  // <-- cooldown flag
+    function activateStageWidgets() {
+      const clocks = document.querySelectorAll("[data-widget='clock']");
+      if (clocks.length === 0) return;
 
+      clocks.forEach(el => {
+        if (el.dataset.active) return; // prevent double-init
+        el.dataset.active = "1";
 
-    getDoc(interactDoc).then(snap => {
-      if (!snap.exists()) {
-        setDoc(interactDoc, { apicta: 0 }, { merge: true });
-      }
-    });
+        function tick() {
+          const now = new Date();
+          el.textContent = now.toLocaleTimeString("en-GB");
+        }
 
-
-    onSnapshot(interactDoc, snap => {
-      if (!snap.exists()) return;
-
-      const data = snap.data();
-      const value = data.apicta ?? 0;
-
-      congratsEl.innerHTML = `🎉 ${value}`;
-    });
-
-
-    congratsEl.addEventListener("click", async () => {
-      congratsEl.style.background = "#aaaa00aa";
-      congratsEl.style.boxShadow = "0 0 15px #ffff00aa";
-
-      // prevent spam
-      if (apictaCooldown) return;
-      apictaCooldown = true;
-      setTimeout(() => apictaCooldown = false, 250); // 250ms cooldown
-
-      const snap = await getDoc(interactDoc);
-      if (!snap.exists()) return;
-
-      const current = snap.data().apicta ?? 0;
-
-      await updateDoc(interactDoc, {
-        apicta: current + 1
+        tick();
+        setInterval(tick, 1000);
       });
+    }
+    
+    window.activateStageWidgets = activateStageWidgets;
 
-        setTimeout(() => {
-          congratsEl.style.background = "#00ff0066";
-          congratsEl.style.boxShadow = "none";
-        }, 100);
-    });
-    */
+    activateStageWidgets();
 
     joinArena();
   </script>
