@@ -855,7 +855,7 @@ transform:translate(-50%, -50%); z-index:999; width:320px;">
         const last = data.lastActive?.toMillis() ?? 0;
 
         if (now - last > 60000 && u.id != currentUID) { // inactive > 30 sec
-          //deleteDoc(doc(db, "users", u.id));
+          deleteDoc(doc(db, "users", u.id));
         }
       });
     }
