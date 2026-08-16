@@ -35,6 +35,7 @@
     padding:9px 11px; font:600 .78rem 'Inter',sans-serif; cursor:pointer;
   }
   button:hover { border-color:var(--accent); }
+  #starburst { color:#ffe57d; }
   .gravity-wrap { display:flex; align-items:center; gap:7px; padding:0 4px; color:var(--sub); font-size:.72rem; }
   input[type=range] { width:85px; accent-color:var(--accent); }
   .back {
@@ -63,6 +64,7 @@
     <button id="addBall">+ Ball</button>
     <button id="addBox">+ Box</button>
     <button id="burst">Burst</button>
+    <button id="starburst">★ Starburst</button>
     <button id="reset">Reset</button>
     <div class="gravity-wrap">Gravity <input id="gravity" type="range" min="0" max="2" value="1" step="0.05"><span id="gravityValue">1.00×</span></div>
   </div>
@@ -90,17 +92,28 @@ function resize(){
 addEventListener('resize', resize); resize();
 
 const colors = ['#4b8bff','#8a6cff','#ef6c9a','#f1a84b','#5cc8a1','#e96969','#65b8e8'];
+const starColors = ['#ffe36e','#ffd24a','#fff0a8','#ffb84d','#fff7cf'];
 function randColor(){ return colors[Math.floor(Math.random()*colors.length)]; }
+function randStarColor(){ return starColors[Math.floor(Math.random()*starColors.length)]; }
 function makeObject(type, x=W*(.25+Math.random()*.5), y=90+Math.random()*120){
-  const size = 24 + Math.random()*22;
-  objects.push({type,x,y,vx:(Math.random()-.5)*120,vy:0,size,color:randColor(),angle:Math.random()*Math.PI,spin:(Math.random()-.5)*2.4,restitution:.72,drag:.999});
+  const size = type==='star' ? 16 + Math.random()*15 : 24 + Math.random()*22;
+  objects.push({
+    type,x,y,vx:(Math.random()-.5)*120,vy:0,size,
+    color:type==='star'?randStarColor():randColor(),
+    angle:Math.random()*Math.PI,spin:(Math.random()-.5)*(type==='star'?7:2.4),
+    restitution:type==='star'?.78:.72,drag:.999
+  });
 }
 function seed(){ objects.length=0; for(let i=0;i<4;i++) makeObject(i%2?'box':'ball'); }
 seed();
 
-function radius(o){ return o.type==='ball' ? o.size : o.size*0.72; }
+function radius(o){
+  if(o.type==='ball') return o.size;
+  if(o.type==='star') return o.size*.95;
+  return o.size*0.72;
+}
 function contains(o,x,y){
-  if(o.type==='ball') return Math.hypot(x-o.x,y-o.y)<=o.size;
+  if(o.type==='ball' || o.type==='star') return Math.hypot(x-o.x,y-o.y)<=o.size;
   const c=Math.cos(-o.angle), s=Math.sin(-o.angle), dx=x-o.x, dy=y-o.y;
   const rx=dx*c-dy*s, ry=dx*s+dy*c;
   return Math.abs(rx)<=o.size && Math.abs(ry)<=o.size;
@@ -171,6 +184,17 @@ function update(dt){
   solveObjectCollisions();
 }
 
+function starPath(outer, inner=outer*.45, points=5){
+  ctx.beginPath();
+  for(let i=0;i<points*2;i++){
+    const r=i%2===0?outer:inner;
+    const a=-Math.PI/2+i*Math.PI/points;
+    const x=Math.cos(a)*r, y=Math.sin(a)*r;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+}
+
 function draw(){
   ctx.clearRect(0,0,W,H);
   const grad=ctx.createRadialGradient(W*.5,0,0,W*.5,0,Math.max(W,H));
@@ -182,13 +206,23 @@ function draw(){
   ctx.fillStyle='rgba(255,255,255,.07)'; ctx.fillRect(0,H-3,W,3);
   for(const o of objects){
     ctx.save(); ctx.translate(o.x,o.y); ctx.rotate(o.angle);
-    ctx.shadowColor=o.color; ctx.shadowBlur=o===grabbed?24:12;
+    ctx.shadowColor=o.color; ctx.shadowBlur=o===grabbed?24:(o.type==='star'?18:12);
     ctx.fillStyle=o.color;
-    if(o.type==='ball'){ ctx.beginPath();ctx.arc(0,0,o.size,0,Math.PI*2);ctx.fill(); }
-    else { ctx.beginPath();ctx.roundRect(-o.size,-o.size,o.size*2,o.size*2,8);ctx.fill(); }
+    if(o.type==='ball'){
+      ctx.beginPath();ctx.arc(0,0,o.size,0,Math.PI*2);ctx.fill();
+    } else if(o.type==='star'){
+      starPath(o.size); ctx.fill();
+    } else {
+      ctx.beginPath();ctx.roundRect(-o.size,-o.size,o.size*2,o.size*2,8);ctx.fill();
+    }
     ctx.shadowBlur=0; ctx.fillStyle='rgba(255,255,255,.22)';
-    if(o.type==='ball'){ ctx.beginPath();ctx.arc(-o.size*.28,-o.size*.3,o.size*.23,0,Math.PI*2);ctx.fill(); }
-    else ctx.fillRect(-o.size*.65,-o.size*.65,o.size*.7,5);
+    if(o.type==='ball'){
+      ctx.beginPath();ctx.arc(-o.size*.28,-o.size*.3,o.size*.23,0,Math.PI*2);ctx.fill();
+    } else if(o.type==='star') {
+      starPath(o.size*.42,o.size*.18); ctx.fill();
+    } else {
+      ctx.fillRect(-o.size*.65,-o.size*.65,o.size*.7,5);
+    }
     ctx.restore();
   }
 }
@@ -205,6 +239,19 @@ document.getElementById('burst').onclick=()=>{
     makeObject(Math.random()>.5?'ball':'box',W/2,H*.32);
     const o=objects[objects.length-1]; const a=(Math.PI*2*i/8)-Math.PI/2;
     o.vx=Math.cos(a)*(350+Math.random()*350); o.vy=Math.sin(a)*(350+Math.random()*350)-250;
+  }
+};
+document.getElementById('starburst').onclick=()=>{
+  const count=24;
+  const cx=W/2, cy=Math.max(150,H*.34);
+  for(let i=0;i<count;i++){
+    makeObject('star',cx+(Math.random()-.5)*18,cy+(Math.random()-.5)*18);
+    const o=objects[objects.length-1];
+    const a=(Math.PI*2*i/count)+(Math.random()-.5)*.18;
+    const speed=420+Math.random()*650;
+    o.vx=Math.cos(a)*speed;
+    o.vy=Math.sin(a)*speed-260;
+    o.spin=(Math.random()-.5)*12;
   }
 };
 document.getElementById('reset').onclick=seed;
