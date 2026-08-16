@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gravity • Monte Central</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --panel: rgba(21,21,24,.92);
+    --text: #e6e6e6;
+    --sub: #8d8d93;
+    --accent: #4b8bff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; }
+  #world { position:fixed; inset:0; width:100%; height:100%; touch-action:none; cursor:grab; }
+  #world.grabbing { cursor:grabbing; }
+  .topbar {
+    position:fixed; top:18px; left:18px; right:18px; z-index:2;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+    pointer-events:none;
+  }
+  .titlebox, .controls {
+    background:var(--panel); border:1px solid rgba(255,255,255,.08); backdrop-filter:blur(12px);
+    border-radius:14px; box-shadow:0 12px 40px rgba(0,0,0,.28); pointer-events:auto;
+  }
+  .titlebox { padding:14px 16px; }
+  h1 { margin:0 0 4px; font-size:1.12rem; }
+  .sub { color:var(--sub); font-size:.78rem; line-height:1.4; }
+  .controls { padding:9px; display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  button {
+    border:1px solid rgba(255,255,255,.1); background:#202025; color:var(--text); border-radius:9px;
+    padding:9px 11px; font:600 .78rem 'Inter',sans-serif; cursor:pointer;
+  }
+  button:hover { border-color:var(--accent); }
+  .gravity-wrap { display:flex; align-items:center; gap:7px; padding:0 4px; color:var(--sub); font-size:.72rem; }
+  input[type=range] { width:85px; accent-color:var(--accent); }
+  .back {
+    position:fixed; left:18px; bottom:18px; z-index:2; color:#8b8b92; text-decoration:none; font-size:.78rem;
+    padding:9px 11px; border-radius:9px; background:rgba(21,21,24,.88); border:1px solid rgba(255,255,255,.07);
+  }
+  .hint {
+    position:fixed; right:18px; bottom:18px; z-index:2; color:#66666c; font-size:.72rem; text-align:right;
+    pointer-events:none;
+  }
+  @media (max-width:650px) {
+    .topbar { flex-direction:column; }
+    .controls { width:100%; justify-content:flex-start; }
+    .hint { display:none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="world"></canvas>
+<div class="topbar">
+  <div class="titlebox">
+    <h1>Gravity</h1>
+    <div class="sub">Grab an object, fling it, and let gravity do the rest.</div>
+  </div>
+  <div class="controls">
+    <button id="addBall">+ Ball</button>
+    <button id="addBox">+ Box</button>
+    <button id="burst">Burst</button>
+    <button id="reset">Reset</button>
+    <div class="gravity-wrap">Gravity <input id="gravity" type="range" min="0" max="2" value="1" step="0.05"><span id="gravityValue">1.00×</span></div>
+  </div>
+</div>
+<a class="back" href="./mtc">← Monte Central</a>
+<div class="hint">Objects bounce off the walls and floor.<br>Works with mouse, touch, and Apple Pencil.</div>
+<script>
+const canvas = document.getElementById('world');
+const ctx = canvas.getContext('2d');
+let dpr = 1, W = innerWidth, H = innerHeight;
+const objects = [];
+let gravityScale = 1;
+let grabbed = null;
+let pointerId = null;
+let lastPointer = null;
+let lastTime = performance.now();
+
+function resize(){
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener('resize', resize); resize();
+
+const colors = ['#4b8bff','#8a6cff','#ef6c9a','#f1a84b','#5cc8a1','#e96969','#65b8e8'];
+function randColor(){ return colors[Math.floor(Math.random()*colors.length)]; }
+function makeObject(type, x=W*(.25+Math.random()*.5), y=90+Math.random()*120){
+  const size = 24 + Math.random()*22;
+  objects.push({type,x,y,vx:(Math.random()-.5)*120,vy:0,size,color:randColor(),angle:Math.random()*Math.PI,spin:(Math.random()-.5)*2.4,restitution:.72,drag:.999});
+}
+function seed(){ objects.length=0; for(let i=0;i<4;i++) makeObject(i%2?'box':'ball'); }
+seed();
+
+function radius(o){ return o.type==='ball' ? o.size : o.size*0.72; }
+function contains(o,x,y){
+  if(o.type==='ball') return Math.hypot(x-o.x,y-o.y)<=o.size;
+  const c=Math.cos(-o.angle), s=Math.sin(-o.angle), dx=x-o.x, dy=y-o.y;
+  const rx=dx*c-dy*s, ry=dx*s+dy*c;
+  return Math.abs(rx)<=o.size && Math.abs(ry)<=o.size;
+}
+
+canvas.addEventListener('pointerdown', e=>{
+  const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+  for(let i=objects.length-1;i>=0;i--){
+    if(contains(objects[i],x,y)){
+      grabbed=objects[i]; pointerId=e.pointerId; canvas.setPointerCapture(e.pointerId);
+      grabbed.vx=grabbed.vy=0; grabbed.spin=0;
+      lastPointer={x,y,t:performance.now()}; canvas.classList.add('grabbing'); break;
+    }
+  }
+});
+canvas.addEventListener('pointermove', e=>{
+  if(!grabbed || e.pointerId!==pointerId) return;
+  const r=canvas.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top, now=performance.now();
+  const dt=Math.max((now-lastPointer.t)/1000,.001);
+  grabbed.vx=(x-lastPointer.x)/dt; grabbed.vy=(y-lastPointer.y)/dt;
+  const r0=radius(grabbed);
+  grabbed.x=Math.max(r0,Math.min(W-r0,x)); grabbed.y=Math.max(r0,Math.min(H-r0,y));
+  grabbed.spin=grabbed.vx*.004;
+  lastPointer={x,y,t:now};
+});
+function release(e){
+  if(!grabbed || e.pointerId!==pointerId) return;
+  grabbed.vx=Math.max(-1800,Math.min(1800,grabbed.vx));
+  grabbed.vy=Math.max(-1800,Math.min(1800,grabbed.vy));
+  grabbed=null; pointerId=null; lastPointer=null; canvas.classList.remove('grabbing');
+}
+canvas.addEventListener('pointerup',release); canvas.addEventListener('pointercancel',release);
+
+function solveObjectCollisions(){
+  for(let i=0;i<objects.length;i++) for(let j=i+1;j<objects.length;j++){
+    const a=objects[i], b=objects[j];
+    if(a===grabbed || b===grabbed) continue;
+    const ar=radius(a), br=radius(b), dx=b.x-a.x, dy=b.y-a.y;
+    let dist=Math.hypot(dx,dy); const min=ar+br;
+    if(dist>0 && dist<min){
+      const nx=dx/dist, ny=dy/dist, overlap=(min-dist)/2;
+      a.x-=nx*overlap; a.y-=ny*overlap; b.x+=nx*overlap; b.y+=ny*overlap;
+      const rvx=b.vx-a.vx, rvy=b.vy-a.vy, vel=rvx*nx+rvy*ny;
+      if(vel<0){
+        const impulse=-(1+.68)*vel/2;
+        a.vx-=impulse*nx; a.vy-=impulse*ny; b.vx+=impulse*nx; b.vy+=impulse*ny;
+      }
+    }
+  }
+}
+
+function update(dt){
+  const g=1250*gravityScale;
+  for(const o of objects){
+    if(o===grabbed) continue;
+    o.vy += g*dt; o.vx *= Math.pow(o.drag,dt*60); o.vy *= Math.pow(o.drag,dt*60);
+    o.x += o.vx*dt; o.y += o.vy*dt; o.angle += o.spin*dt;
+    const r=radius(o);
+    if(o.x-r<0){ o.x=r; o.vx=Math.abs(o.vx)*o.restitution; o.spin*=-.8; }
+    if(o.x+r>W){ o.x=W-r; o.vx=-Math.abs(o.vx)*o.restitution; o.spin*=-.8; }
+    if(o.y-r<0){ o.y=r; o.vy=Math.abs(o.vy)*o.restitution; }
+    if(o.y+r>H){
+      o.y=H-r; o.vy=-Math.abs(o.vy)*o.restitution; o.vx*=.985; o.spin*=.96;
+      if(Math.abs(o.vy)<18) o.vy=0;
+      if(Math.abs(o.vx)<2) o.vx=0;
+    }
+  }
+  solveObjectCollisions();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  const grad=ctx.createRadialGradient(W*.5,0,0,W*.5,0,Math.max(W,H));
+  grad.addColorStop(0,'#171822'); grad.addColorStop(1,'#0d0d0f');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.07)'; ctx.lineWidth=1;
+  for(let x=0;x<W;x+=60){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
+  for(let y=0;y<H;y+=60){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
+  ctx.fillStyle='rgba(255,255,255,.07)'; ctx.fillRect(0,H-3,W,3);
+  for(const o of objects){
+    ctx.save(); ctx.translate(o.x,o.y); ctx.rotate(o.angle);
+    ctx.shadowColor=o.color; ctx.shadowBlur=o===grabbed?24:12;
+    ctx.fillStyle=o.color;
+    if(o.type==='ball'){ ctx.beginPath();ctx.arc(0,0,o.size,0,Math.PI*2);ctx.fill(); }
+    else { ctx.beginPath();ctx.roundRect(-o.size,-o.size,o.size*2,o.size*2,8);ctx.fill(); }
+    ctx.shadowBlur=0; ctx.fillStyle='rgba(255,255,255,.22)';
+    if(o.type==='ball'){ ctx.beginPath();ctx.arc(-o.size*.28,-o.size*.3,o.size*.23,0,Math.PI*2);ctx.fill(); }
+    else ctx.fillRect(-o.size*.65,-o.size*.65,o.size*.7,5);
+    ctx.restore();
+  }
+}
+
+function frame(now){
+  const dt=Math.min((now-lastTime)/1000,.025); lastTime=now; update(dt); draw(); requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+document.getElementById('addBall').onclick=()=>makeObject('ball');
+document.getElementById('addBox').onclick=()=>makeObject('box');
+document.getElementById('burst').onclick=()=>{
+  for(let i=0;i<8;i++){
+    makeObject(Math.random()>.5?'ball':'box',W/2,H*.32);
+    const o=objects[objects.length-1]; const a=(Math.PI*2*i/8)-Math.PI/2;
+    o.vx=Math.cos(a)*(350+Math.random()*350); o.vy=Math.sin(a)*(350+Math.random()*350)-250;
+  }
+};
+document.getElementById('reset').onclick=seed;
+const gravity=document.getElementById('gravity'), gv=document.getElementById('gravityValue');
+gravity.oninput=()=>{ gravityScale=+gravity.value; gv.textContent=gravityScale.toFixed(2)+'×'; };
+</script>
+</body>
+</html>
